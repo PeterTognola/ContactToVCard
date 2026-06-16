@@ -7,13 +7,10 @@ using ContactToVCard.Services;
 
 namespace ContactToVCard.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel(IFilePickerService filePickerService) : ViewModelBase
 {
-    private readonly IFilePickerService filePickerService;
-
-    public MainWindowViewModel(IFilePickerService filePickerService)
+    public MainWindowViewModel() : this(new DesignTimeFilePickerService())
     {
-        this.filePickerService = filePickerService;
     }
 
     [ObservableProperty]
@@ -24,7 +21,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
-
+    public string ConvertButtonText { get; } = "Convert Contacts";
+    
     [RelayCommand]
     private async Task PickFilesAsync()
     {
@@ -53,5 +51,12 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedOutputFolderSummary = string.IsNullOrWhiteSpace(folderPath)
             ? "No output folder selected."
             : $"Output folder:\n{folderPath}";
+    }
+
+    private sealed class DesignTimeFilePickerService : IFilePickerService
+    {
+        public Task<IReadOnlyList<string>> PickFilesAsync() => Task.FromResult<IReadOnlyList<string>>([]);
+
+        public Task<string?> PickOutputFolderAsync() => Task.FromResult<string?>(null);
     }
 }

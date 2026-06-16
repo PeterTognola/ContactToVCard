@@ -11,10 +11,15 @@
         Height="450"
         Title="ContactToVCard">
 
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
     <StackPanel Margin="12" Spacing="8">
         <Button Content="{Binding PickFilesText}" Command="{Binding PickFilesCommand}" />
         <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
         <Button Content="{Binding PickOutputFolderText}" Command="{Binding PickOutputFolderCommand}" />
         <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
+        <Button Content="{Binding ConvertButtonText}" />
     </StackPanel>
 </Window>
