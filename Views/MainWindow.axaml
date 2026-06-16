@@ -15,11 +15,17 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel Margin="12" Spacing="8">
-        <Button Content="{Binding PickFilesText}" Command="{Binding PickFilesCommand}" />
-        <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
-        <Button Content="{Binding PickOutputFolderText}" Command="{Binding PickOutputFolderCommand}" />
-        <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
-        <Button Content="{Binding ConvertButtonText}" />
+    <StackPanel Margin="18" Spacing="10">
+        <StackPanel Margin="0 0 0 10" Spacing="10">
+            <TextBlock Text="{Binding TitleText}" TextAlignment="Center" HorizontalAlignment="Center" FontSize="24" />
+            <TextBlock Text="{Binding IntroductionText}" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Spacing="10">
+            <Button Content="{Binding PickFilesText}" Command="{Binding HandlePickFilesCommand}" />
+            <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
+            <Button Content="{Binding PickOutputFolderText}" Command="{Binding HandlePickOutputFolderCommand}" />
+            <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
+            <Button Content="{Binding ConvertButtonText}" Command="{Binding }" />
+        </StackPanel>
     </StackPanel>
 </Window>

@@ -22,28 +22,49 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService) :
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
     public string ConvertButtonText { get; } = "Convert Contacts";
+    public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press process.";
+    public string TitleText { get; set; } = "Contact To VCard";
+    
+    private List<string> selectedFiles { get; set; }
+    
+    private string selectedOutputFolder { get; set; }
+
     
     [RelayCommand]
-    private async Task PickFilesAsync()
+    private async Task HandlePickFilesAsync()
     {
         var files = await filePickerService.PickFilesAsync();
         SetSelectedFiles(files);
     }
 
     [RelayCommand]
-    private async Task PickOutputFolderAsync()
+    private async Task HandlePickOutputFolderAsync()
     {
         var folderPath = await filePickerService.PickOutputFolderAsync();
         SetSelectedOutputFolder(folderPath);
+    }
+
+    [RelayCommand]
+    private async Task HandleProcessAsync()
+    {
+        if (selectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
+        {
+            // todo warn user message.
+            return;
+        }
+        
+        
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
     {
         var files = filePaths.ToList();
 
+        selectedFiles = files;
+
         SelectedFilesSummary = files.Count == 0
             ? "No files selected."
-            : $"Selected {files.Count} file(s):\n{string.Join("\n", files)}";
+            : $"Selected {files.Count} file(s)";
     }
 
     private void SetSelectedOutputFolder(string? folderPath)
@@ -53,6 +74,12 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService) :
             : $"Output folder:\n{folderPath}";
     }
 
+    private void HandleProcess()
+    {
+        
+    }
+
+    // todo move out of here, add comments related to preview.
     private sealed class DesignTimeFilePickerService : IFilePickerService
     {
         public Task<IReadOnlyList<string>> PickFilesAsync() => Task.FromResult<IReadOnlyList<string>>([]);
