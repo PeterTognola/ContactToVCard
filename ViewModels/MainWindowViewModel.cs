@@ -7,9 +7,9 @@ using ContactToVCard.Services;
 
 namespace ContactToVCard.ViewModels;
 
-public partial class MainWindowViewModel(IFilePickerService filePickerService) : ViewModelBase
+public partial class MainWindowViewModel(IFilePickerService filePickerService, IConvertContactService convertContactService) : ViewModelBase
 {
-    public MainWindowViewModel() : this(new DesignTimeFilePickerService())
+    public MainWindowViewModel() : this(new DesignTimeFilePickerService(), new DesignTimeContactConverterService())
     {
     }
 
@@ -52,8 +52,11 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService) :
             // todo warn user message.
             return;
         }
-        
-        
+
+        foreach (var file in selectedFiles)
+        {
+            convertContactService.ConvertAsync(file, selectedOutputFolder);
+        }
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
@@ -85,5 +88,10 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService) :
         public Task<IReadOnlyList<string>> PickFilesAsync() => Task.FromResult<IReadOnlyList<string>>([]);
 
         public Task<string?> PickOutputFolderAsync() => Task.FromResult<string?>(null);
+    }
+    
+    private sealed class DesignTimeContactConverterService : IConvertContactService
+    {
+        public bool ConvertAsync(string file, string outputFolder) => true;
     }
 }

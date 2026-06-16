@@ -23,7 +23,9 @@ public partial class App : Application
         {
             var mainWindow = new MainWindow();
             var filePickerService = new AvaloniaFilePickerService(mainWindow);
-            mainWindow.DataContext = new MainWindowViewModel(filePickerService);
+            var convertContactService = new ConvertContactService();
+            
+            mainWindow.DataContext = new MainWindowViewModel(filePickerService, convertContactService);
 
             desktop.MainWindow = mainWindow;
         }
