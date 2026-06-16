@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c:contact c:contactId="7f2b1a3d-4c5e-6f7a-8b9c-0d1e2f3a4b5c" xmlns:c="http://microsoft.com" xmlns:xsi="http://w3.org">
+  <c:CreationDate>2026-06-16T12:00:00Z</c:CreationDate>
+  <c:ContactProperties>
+    
+    <!-- Name Data -->
+    <c:NameVerification>
+      <c:GivenName>Jane 1</c:GivenName>
+      <c:FamilyName>Doe 1</c:FamilyName>
+      <c:FormattedName>Jane Doe 1</c:FormattedName>
+    </c:NameVerification>
+
+    <!-- Phone Numbers -->
+    <c:PhoneNumberCollection>
+      <c:PhoneNumber c:id="phone-cell">
+        <c:Number>+1-555-0199</c:Number>
+        <c:LabelCollection>
+          <c:Label>Cellular</c:Label>
+          <c:Label>Voice</c:Label>
+        </c:LabelCollection>
+      </c:PhoneNumber>
+      <c:PhoneNumber c:id="phone-home">
+        <c:Number>+1-555-0144</c:Number>
+        <c:LabelCollection>
+          <c:Label>Home</c:Label>
+          <c:Label>Voice</c:Label>
+        </c:LabelCollection>
+      </c:PhoneNumber>
+      <c:PhoneNumber c:id="phone-work">
+        <c:Number>+1-555-0122</c:Number>
+        <c:LabelCollection>
+          <c:Label>Work</c:Label>
+          <c:Label>Voice</c:Label>
+        </c:LabelCollection>
+      </c:PhoneNumber>
+    </c:PhoneNumberCollection>
+
+    <!-- Email Address -->
+    <c:EmailAddressCollection>
+      <c:EmailAddress c:id="email-pref">
+        <c:Address>jane.doe@example.com</c:Address>
+        <c:LabelCollection>
+          <c:Label>Preferred</c:Label>
+        </c:LabelCollection>
+      </c:EmailAddress>
+    </c:EmailAddressCollection>
+
+  </c:ContactProperties>
+</c:contact>

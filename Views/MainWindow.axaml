@@ -25,7 +25,7 @@
             <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
             <Button Content="{Binding PickOutputFolderText}" Command="{Binding HandlePickOutputFolderCommand}" />
             <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
-            <Button Content="{Binding ConvertButtonText}" Command="{Binding }" />
+            <Button Content="{Binding ConvertButtonText}" Command="{Binding HandleProcessCommand}" />
         </StackPanel>
     </StackPanel>
 </Window>

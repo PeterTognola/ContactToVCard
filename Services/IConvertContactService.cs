@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace ContactToVCard.Services;
@@ -15,22 +13,38 @@ public class ConvertContactService : IConvertContactService
 {
     public bool ConvertAsync(string file, string outputFolder)
     {
+        // Load the XML document safely
         var doc = XDocument.Load(file);
-        var ns = doc.Root.GetDefaultNamespace();
-        
-        var nameNode = doc.Descendants(ns + "NameVerification").FirstOrDefault();
-        var firstName = nameNode?.Element(ns + "GivenName")?.Value ?? "";
-        var lastName = nameNode?.Element(ns + "FamilyName")?.Value ?? "";
-        var formattedName = nameNode?.Element(ns + "FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
-        
-        var phoneNodes = doc.Descendants(ns + "PhoneNumberCollection").Elements(ns + "PhoneNumber");
-        var mobilePhone = phoneNodes.FirstOrDefault(p => p.Element(ns + "LabelCollection")?.Elements(ns + "Label").Any(l => l.Value == "Cellular") == true)?.Element(ns + "Number")?.Value ?? "";
-        var homePhone = phoneNodes.FirstOrDefault(p => p.Element(ns + "LabelCollection")?.Elements(ns + "Label").Any(l => l.Value == "Home") == true)?.Element(ns + "Number")?.Value ?? "";
-        var workPhone = phoneNodes.FirstOrDefault(p => p.Element(ns + "LabelCollection")?.Elements(ns + "Label").Any(l => l.Value == "Work") == true)?.Element(ns + "Number")?.Value ?? "";
-        
-        var emailNode = doc.Descendants(ns + "EmailAddressCollection").Elements(ns + "EmailAddress").FirstOrDefault();
-        var email = emailNode?.Element(ns + "Address")?.Value ?? "";
-        
+
+        // Bypassing namespaces completely by checking the 'LocalName' property
+        var nameNode = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "NameVerification");
+        var firstName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "GivenName")?.Value ?? "";
+        var lastName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "FamilyName")?.Value ?? "";
+        var formattedName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
+
+        // Extract Phone Numbers safely by matching LocalName and inner Label values
+        var phoneCollection = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "PhoneNumberCollection");
+        var phoneNodes = phoneCollection?.Elements().Where(e => e.Name.LocalName == "PhoneNumber") ?? Enumerable.Empty<XElement>();
+
+        var mobilePhone = "";
+        var homePhone = "";
+        var workPhone = "";
+
+        foreach (var phone in phoneNodes)
+        {
+            string number = phone.Elements().FirstOrDefault(e => e.Name.LocalName == "Number")?.Value ?? "";
+            var labels = phone.Descendants().Where(e => e.Name.LocalName == "Label").Select(l => l.Value);
+
+            if (labels.Contains("Cellular")) mobilePhone = number;
+            else if (labels.Contains("Home")) homePhone = number;
+            else if (labels.Contains("Work")) workPhone = number;
+        }
+
+        // Extract Email Address safely
+        var emailCollection = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "EmailAddressCollection");
+        var emailNode = emailCollection?.Elements().FirstOrDefault(e => e.Name.LocalName == "EmailAddress");
+        string email = emailNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "Address")?.Value ?? "";
+
         var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
         var vcfPath = Path.Combine(outputFolder, fileNameWithoutExt + ".vcf");
         

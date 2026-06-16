@@ -72,14 +72,11 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     private void SetSelectedOutputFolder(string? folderPath)
     {
+        selectedOutputFolder = folderPath;
+
         SelectedOutputFolderSummary = string.IsNullOrWhiteSpace(folderPath)
             ? "No output folder selected."
             : $"Output folder:\n{folderPath}";
-    }
-
-    private void HandleProcess()
-    {
-        
     }
 
     // todo move out of here, add comments related to preview.
