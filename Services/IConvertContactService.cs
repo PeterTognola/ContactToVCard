@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Xml.Schema;
 using ContactToVCard.Helpers;
 
 namespace ContactToVCard.Services;
