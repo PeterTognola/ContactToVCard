@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using ContactToVCard.Helpers;
 
 namespace ContactToVCard.Services;
 
