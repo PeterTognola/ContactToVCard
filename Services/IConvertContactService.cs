@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using ContactToVCard.Helpers;
 
 namespace ContactToVCard.Services;
@@ -12,65 +14,95 @@ public interface IConvertContactService
 
 public class ConvertContactService : IConvertContactService
 {
-    public bool ConvertAndSaveContact(string file, string outputFolder)
+    /// <summary>
+    /// Read and convert the CONTACT to VCard format, then save.
+    ///
+    /// This method ignores namespaces and uses the "LocalName" property to match elements.
+    ///
+    /// Note that the output name will match the input file name.
+    /// </summary>
+    /// <param name="file">The input .CONTACT XML file.</param>
+    /// <param name="outputFolder">The folder location to save the VCard file.</param>
+    /// <returns></returns>
+    public bool ConvertAndSaveContact(string file, string outputFolder) // todo could be void if not validating.
     {
-        // Load the XML document safely
+        // Load the CONTACT.
         var doc = XDocument.Load(file);
-
-        // Bypassing namespaces completely by checking the 'LocalName' property
-        var nameNode = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "NameVerification");
-        var firstName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "GivenName")?.Value ?? "";
-        var lastName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "FamilyName")?.Value ?? "";
-        var formattedName = nameNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
-
-        // Extract Phone Numbers safely by matching LocalName and inner Label values
-        var phoneCollection = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "PhoneNumberCollection");
-        var phoneNodes = phoneCollection?.Elements().Where(e => e.Name.LocalName == "PhoneNumber") ?? Enumerable.Empty<XElement>();
-
-        var mobilePhone = "";
-        var homePhone = "";
-        var workPhone = "";
-
-        foreach (var phone in phoneNodes)
-        {
-            string number = phone.Elements().FirstOrDefault(e => e.Name.LocalName == "Number")?.Value ?? "";
-            var labels = phone.Descendants().Where(e => e.Name.LocalName == "Label").Select(l => l.Value);
-
-            if (labels.Contains("Cellular")) mobilePhone = number;
-            else if (labels.Contains("Home")) homePhone = number;
-            else if (labels.Contains("Work")) workPhone = number;
-        }
-
-        // Extract Email Address safely
-        var emailCollection = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "EmailAddressCollection");
-        var emailNode = emailCollection?.Elements().FirstOrDefault(e => e.Name.LocalName == "EmailAddress");
-        string email = emailNode?.Elements().FirstOrDefault(e => e.Name.LocalName == "Address")?.Value ?? "";
-
-        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-        var vcfPath = Path.Combine(outputFolder, fileNameWithoutExt + ".vcf");
+        
+        // Extract data from the CONTACT document.
+        var names = GetNames(doc.GetNodeByLocalName("NameVerification"));
+        var phones = GetPhones(doc.GetNodeByLocalName("PhoneNumberCollection"));
+        var email = GetEmail(doc.GetNodeByLocalName("EmailAddressCollection"));
+        
+        var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".vcf");
         
         // Save it.
         using var writer = new StreamWriter(vcfPath);
         
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
-        writer.WriteLine($"N:{lastName};{firstName};;;");
-        writer.WriteLine($"FN:{formattedName}");
+        writer.WriteLine($"N:{names.first};{names.last};;;");
+        writer.WriteLine($"FN:{names.formatted}");
 
-        if (!string.IsNullOrEmpty(mobilePhone))
-            writer.WriteLine($"TEL;TYPE=CELL,VOICE:{mobilePhone}");
-
-        if (!string.IsNullOrEmpty(homePhone))
-            writer.WriteLine($"TEL;TYPE=HOME,VOICE:{homePhone}");
-
-        if (!string.IsNullOrEmpty(workPhone))
-            writer.WriteLine($"TEL;TYPE=WORK,VOICE:{workPhone}");
+        foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
 
         if (!string.IsNullOrEmpty(email))
             writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
         writer.WriteLine("END:VCARD");
 
-        return true; // handle non error failure.
+        return true;
     }
+
+    private static (string first, string last, string formatted) GetNames(XElement? nameNode)
+    {
+        var firstName = nameNode?.GetNodeByLocalName("GivenName")?.Value ?? "";
+        var lastName = nameNode?.GetNodeByLocalName("FamilyName")?.Value ?? "";
+        var formattedName = nameNode?.GetNodeByLocalName("FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
+        
+        return (firstName, lastName, formattedName);
+    }
+
+    private static IList<ContactNumber> GetPhones(XElement? phoneNode)
+    {
+        // Extract Phone Numbers safely by matching LocalName and inner Label values
+        if (phoneNode == null) return [];
+        
+        var nodes = phoneNode.Elements().Where(e => e.Name.LocalName == "PhoneNumber");
+        
+        return (from phone in nodes
+            let labels = GetLabels(phone)
+            select new ContactNumber
+            {
+                // Default type to cellular if nothing matches.
+                Type = labels.Contains("Home")
+                    ? ContactNumberType.Home
+                    : labels.Contains("Work")
+                        ? ContactNumberType.Work
+                        : ContactNumberType.Cell,
+                Number = phone.GetNodeByLocalName("Number")?.Value ?? ""
+            }).ToList();
+
+        IEnumerable<string> GetLabels(XElement phone) => phone.Descendants().Where(e => e.Name.LocalName == "Label").Select(l => l.Value);
+    }
+
+    private static string GetEmail(XElement? emailNode)
+    {
+        if (emailNode == null) return "";
+        
+        return emailNode.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
+    }
+}
+
+public class ContactNumber
+{
+    public ContactNumberType Type { get; set; }
+    public string Number { get; set; }
+}
+
+public enum ContactNumberType
+{
+    Cell = 1,
+    Home = 2,
+    Work = 3
 }

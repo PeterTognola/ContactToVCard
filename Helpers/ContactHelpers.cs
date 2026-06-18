@@ -18,4 +18,16 @@ public static class ContactHelpers
                 ? null
                 : document.Descendants().FirstOrDefault(e => e.Name.LocalName == localName);
     }
+    
+    [SuppressMessage("Maintainability", "CA1510:Use ArgumentNullException throw helper")]
+    public static XElement? GetNodeByLocalName(this XElement element, string localName)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentException.ThrowIfNullOrWhiteSpace(localName);
+
+        return
+            !element.Elements().Any()
+                ? null
+                : element.Elements().FirstOrDefault(e => e.Name.LocalName == localName);
+    }
 }
