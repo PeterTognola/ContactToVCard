@@ -29,25 +29,23 @@ public class ConvertContactService : IConvertContactService
         // Load the CONTACT.
         var doc = XDocument.Load(file);
         
-        // Extract data from the CONTACT document.
-        var names = GetNames(doc.GetNodeByLocalName("NameVerification"));
-        var phones = GetPhones(doc.GetNodeByLocalName("PhoneNumberCollection"));
-        var email = GetEmail(doc.GetNodeByLocalName("EmailAddressCollection"));
-        
         var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".vcf");
         
-        // Save it.
+        // Extract data from the CONTACT document and write it to a stream.
         using var writer = new StreamWriter(vcfPath);
         
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
+        
+        var names = GetNames(doc.GetNodeByLocalName("NameVerification")); // todo out variable would be pretty...
         writer.WriteLine($"N:{names.first};{names.last};;;");
         writer.WriteLine($"FN:{names.formatted}");
 
+        var phones = GetPhones(doc.GetNodeByLocalName("PhoneNumberCollection"));
         foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
 
-        if (!string.IsNullOrEmpty(email))
-            writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
+        var email = GetEmail(doc.GetNodeByLocalName("EmailAddressCollection"));
+        if (!string.IsNullOrEmpty(email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
         writer.WriteLine("END:VCARD");
 
