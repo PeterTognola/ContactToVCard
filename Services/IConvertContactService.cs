@@ -6,12 +6,12 @@ namespace ContactToVCard.Services;
 
 public interface IConvertContactService
 {
-    public bool ConvertAsync(string file, string outputFolder);
+    public bool ConvertAndSaveContact(string file, string outputFolder);
 }
 
 public class ConvertContactService : IConvertContactService
 {
-    public bool ConvertAsync(string file, string outputFolder)
+    public bool ConvertAndSaveContact(string file, string outputFolder)
     {
         // Load the XML document safely
         var doc = XDocument.Load(file);

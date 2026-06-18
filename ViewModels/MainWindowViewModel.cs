@@ -55,7 +55,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
         foreach (var file in selectedFiles)
         {
-            convertContactService.ConvertAsync(file, selectedOutputFolder);
+            convertContactService.ConvertAndSaveContact(file, selectedOutputFolder);
         }
     }
 
@@ -89,6 +89,6 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     private sealed class DesignTimeContactConverterService : IConvertContactService
     {
-        public bool ConvertAsync(string file, string outputFolder) => true;
+        public bool ConvertAndSaveContact(string file, string outputFolder) => true;
     }
 }
