@@ -94,8 +94,8 @@ public class ConvertContactService : IConvertContactService
 
 public class ContactNumber
 {
-    public ContactNumberType Type { get; set; }
-    public string Number { get; set; }
+    public ContactNumberType Type { get; set; } = ContactNumberType.Cell;
+    public string Number { get; set; } = "";
 }
 
 public enum ContactNumberType
