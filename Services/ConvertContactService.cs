@@ -17,8 +17,8 @@ public class ConvertContactService : IConvertContactService
     /// </summary>
     /// <param name="file">The input .CONTACT XML file.</param>
     /// <param name="outputFolder">The folder location to save the VCard file.</param>
-    /// <returns></returns>
-    public bool ConvertAndSaveContact(string file, string outputFolder) // todo could be void if not validating.
+    /// <returns>True if document is valid and false on unrecoverable failure.</returns>
+    public bool ConvertAndSaveContact(string file, string outputFolder)
     {
         // Load the CONTACT.
         var doc = XDocument.Load(file);
@@ -30,10 +30,16 @@ public class ConvertContactService : IConvertContactService
         
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
-        
-        var names = GetNames(doc.GetNodeByLocalName("NameVerification")); // todo out variable would be pretty...
-        writer.WriteLine($"N:{names.first};{names.last};;;");
-        writer.WriteLine($"FN:{names.formatted}");
+
+        if (TryParseNames(doc.GetNodeByLocalName("NameVerification"), out var names))
+        {
+            writer.WriteLine($"N:{names.first};{names.last};;;");
+            writer.WriteLine($"FN:{names.formatted}");
+        }
+        else
+        {
+            return false;
+        }
 
         var phones = GetPhones(doc.GetNodeByLocalName("PhoneNumberCollection"));
         foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
@@ -46,13 +52,17 @@ public class ConvertContactService : IConvertContactService
         return true;
     }
 
-    private static (string first, string last, string formatted) GetNames(XElement? nameNode)
+    private static bool TryParseNames(XElement? nameNode, out (string first, string last, string formatted) result)
     {
-        var firstName = nameNode?.GetNodeByLocalName("GivenName")?.Value ?? "";
-        var lastName = nameNode?.GetNodeByLocalName("FamilyName")?.Value ?? "";
-        var formattedName = nameNode?.GetNodeByLocalName("FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
-        
-        return (firstName, lastName, formattedName);
+        result = ("", "", "");
+        if (nameNode == null) return false;
+
+        var firstName = nameNode.GetNodeByLocalName("GivenName")?.Value ?? "";
+        var lastName = nameNode.GetNodeByLocalName("FamilyName")?.Value ?? "";
+        var formattedName = nameNode.GetNodeByLocalName("FormattedName")?.Value ?? $"{firstName} {lastName}".Trim();
+
+        result = (firstName, lastName, formattedName);
+        return true;
     }
 
     private static IList<ContactNumber> GetPhones(XElement? phoneNode)
