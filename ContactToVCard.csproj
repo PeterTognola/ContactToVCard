@@ -8,6 +8,8 @@
 
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
+        <IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
 
     <ItemGroup>
