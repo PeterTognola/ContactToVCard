@@ -40,31 +40,43 @@ public class ConvertContactService : IConvertContactService
         using var writer = new StreamWriter(vcfPath);
         
         // Begin VCard.
+        
+        return WriteBlueprint(writer, writer =>
+        {
+            if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
+            {
+                writer.WriteLine($"N:{names.last};{names.first};;;");
+                writer.WriteLine($"FN:{names.formatted}");
+            }
+            else
+            {
+                return false;
+            }
+
+            var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
+            foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
+        
+            // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
+            WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
+        
+            if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
+
+            return true;
+        });;
+    }
+
+    private static bool WriteBlueprint(StreamWriter writer, Func<StreamWriter, bool> contents)
+    {
+        // Begin VCard.
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
-
-        if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
-        {
-            writer.WriteLine($"N:{names.last};{names.first};;;");
-            writer.WriteLine($"FN:{names.formatted}");
-        }
-        else
-        {
-            return false;
-        }
-
-        var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
-        foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
         
-        // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
-        WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
+        var result = contents(writer);
         
-        if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
-
         // End VCard.
         writer.WriteLine("END:VCARD");
 
-        return true;
+        return result;
     }
 
     private static bool TryParseNames(XElement? nameNode, out (string first, string last, string formatted) result)
