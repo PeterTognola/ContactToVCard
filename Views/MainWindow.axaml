@@ -27,10 +27,20 @@
         </StackPanel>
         <ScrollViewer Height="300" Background="Red">
             <StackPanel Spacing="10">
-            <Button Content="{Binding PickFilesText}" Command="{Binding HandlePickFilesCommand}" />
-            <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
-            <Button Content="{Binding PickOutputFolderText}" Command="{Binding HandlePickOutputFolderCommand}" />
-            <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
+                <Grid Grid.IsSharedSizeScope="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Button Content="{Binding PickFilesText}" Command="{Binding HandlePickFilesCommand}" />
+                        <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <Button Content="{Binding PickOutputFolderText}" Command="{Binding HandlePickOutputFolderCommand}" />
+                        <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             <Border BorderBrush="Gray" BorderThickness="1" Padding="6">
                 <StackPanel Spacing="4">
                     <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
