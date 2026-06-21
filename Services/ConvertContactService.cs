@@ -43,7 +43,7 @@ public class ConvertContactService : IConvertContactService
 
         if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
         {
-            writer.WriteLine($"N:{names.first};{names.last};;;");
+            writer.WriteLine($"N:{names.last};{names.first};;;");
             writer.WriteLine($"FN:{names.formatted}");
         }
         else
