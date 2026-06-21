@@ -8,7 +8,12 @@ namespace ContactToVCard.Services;
 
 public class ConvertContactService : IConvertContactService
 {
-    private const string NameNodeName = "NameVerification";
+    private static readonly string[] NameNodeName =
+    [
+        "NameVerification",
+        "NameCollection"
+    ];
+
     private const string PhoneNodeName = "PhoneNumberCollection";
     private const string EmailNodeName = "EmailAddressCollection";
     
