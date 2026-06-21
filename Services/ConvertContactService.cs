@@ -8,6 +8,10 @@ namespace ContactToVCard.Services;
 
 public class ConvertContactService : IConvertContactService
 {
+    private const string NameNodeName = "NameVerification";
+    private const string PhoneNodeName = "PhoneNumberCollection";
+    private const string EmailNodeName = "EmailAddressCollection";
+    
     /// <summary>
     /// Read and convert the CONTACT to VCard format, then save.
     ///
@@ -28,10 +32,11 @@ public class ConvertContactService : IConvertContactService
         // Extract data from the CONTACT document and write it to a stream.
         using var writer = new StreamWriter(vcfPath);
         
+        // Begin VCard.
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
 
-        if (TryParseNames(doc.GetNodeByLocalName("NameVerification"), out var names))
+        if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
         {
             writer.WriteLine($"N:{names.first};{names.last};;;");
             writer.WriteLine($"FN:{names.formatted}");
@@ -41,12 +46,12 @@ public class ConvertContactService : IConvertContactService
             return false;
         }
 
-        var phones = GetPhones(doc.GetNodeByLocalName("PhoneNumberCollection"));
+        var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
         foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
+        
+        if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
-        var email = GetEmail(doc.GetNodeByLocalName("EmailAddressCollection"));
-        if (!string.IsNullOrEmpty(email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
-
+        // End VCard.
         writer.WriteLine("END:VCARD");
 
         return true;
@@ -88,10 +93,10 @@ public class ConvertContactService : IConvertContactService
         IEnumerable<string> GetLabels(XElement phone) => phone.Descendants().Where(e => e.Name.LocalName == "Label").Select(l => l.Value);
     }
 
-    private static string GetEmail(XElement? emailNode)
+    private static bool TryParseEmail(XElement? emailNode, out string email)
     {
-        if (emailNode == null) return "";
+        email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
-        return emailNode.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
+        return !string.IsNullOrWhiteSpace(email);
     }
 }
