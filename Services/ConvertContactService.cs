@@ -52,8 +52,7 @@ public class ConvertContactService : IConvertContactService
             }
             
             WritePhones(writer, doc.GetNodeByLocalName(PhoneNodeName), PhoneNodeName);
-        
-            // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
+            
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
         
             if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
@@ -114,7 +113,7 @@ public class ConvertContactService : IConvertContactService
             Number = phoneNode.GetNodeByLocalName("Number")?.Value ?? "",
             Type = ParseLabel(phoneNode)
         };
-
+        
         return phone.Number.Length > 0;
     }
 
@@ -133,6 +132,7 @@ public class ConvertContactService : IConvertContactService
         
         foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
         {
+            // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
             if (TryParseAddress(node, out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
         }
     }
