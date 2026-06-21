@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Xml.Linq;
 using ContactToVCard.Helpers;
 
@@ -34,10 +35,10 @@ public class ConvertContactService : IConvertContactService
         // Load the CONTACT.
         var doc = XDocument.Load(file);
         
+        // Get the output path.
         var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".vcf");
         
-        // Begin VCard.
-        
+        // Write the VCard.
         return WriteBlueprint(vcfPath, writer =>
         {
             if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
@@ -49,9 +50,8 @@ public class ConvertContactService : IConvertContactService
             {
                 return false;
             }
-
-            var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
-            foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
+            
+            WritePhones(writer, doc.GetNodeByLocalName(PhoneNodeName), PhoneNodeName);
         
             // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
@@ -91,28 +91,31 @@ public class ConvertContactService : IConvertContactService
         result = (firstName, lastName, formattedName);
         return true;
     }
-
-    private static List<ContactNumber> GetPhones(XElement? phoneNode)
+    
+    private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName)
     {
-        // Extract Phone Numbers safely by matching LocalName and inner Label values
-        if (phoneNode == null) return [];
+        collectionName = collectionName.Replace("Collection", "");
         
-        var nodes = phoneNode.Elements().Where(e => e.Name.LocalName == "PhoneNumber");
+        if (collectionNode == null) return;
         
-        return (from phone in nodes
-            let labels = GetLabels(phone)
-            select new ContactNumber
-            {
-                // Default type to cellular if nothing matches.
-                Type = labels.Contains("Home")
-                    ? ContactNumberType.Home
-                    : labels.Contains("Work")
-                        ? ContactNumberType.Work
-                        : ContactNumberType.Cell,
-                Number = phone.GetNodeByLocalName("Number")?.Value ?? ""
-            }).ToList();
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+        {
+            if (TryParsePhone(node, out var phone)) writer.WriteLine($"TEL;TYPE={phone.Type.ToString()},VOICE:{phone.Number}");
+        }
+    }
+    
+    private static bool TryParsePhone(XElement? phoneNode, out ContactNumber phone)
+    {
+        phone = new ContactNumber();
+        if (phoneNode == null) return false;
 
-        IEnumerable<string> GetLabels(XElement phone) => phone.Descendants().Where(e => e.Name.LocalName == "Label").Select(l => l.Value);
+        phone = new ContactNumber
+        {
+            Number = phoneNode.GetNodeByLocalName("Number")?.Value ?? "",
+            Type = ParseLabel(phoneNode)
+        };
+
+        return phone.Number.Length > 0;
     }
 
     private static bool TryParseEmail(XElement? emailNode, out string email)
@@ -147,5 +150,17 @@ public class ConvertContactService : IConvertContactService
         
         result = (street, city, county, postcode, country);
         return true;
+    }
+    
+    // todo for now we are not following the spec of multiple possible types. We are sticking to first. Also possible bug if used elsewhere it would default to Cell (e.g., for address this would be wrong default).
+    private static ContactNumberType ParseLabel(XElement node)
+    {
+        var label = node.GetNodeByLocalName("Label").Value;
+
+        return label.Contains("Home")
+            ? ContactNumberType.Home
+            : label.Contains("Work")
+                ? ContactNumberType.Work
+                : ContactNumberType.Cell;
     }
 }
