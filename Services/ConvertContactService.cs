@@ -56,11 +56,8 @@ public class ConvertContactService : IConvertContactService
         var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
         foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
         
-        // todo could be multiple...
         // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
-        //if (TryParseAddress(doc.GetNodeByLocalName(AddressNodeName), out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
         WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
-        
         
         if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
