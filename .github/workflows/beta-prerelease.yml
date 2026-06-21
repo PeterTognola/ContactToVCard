@@ -1,0 +1,64 @@
+name: Beta Prerelease
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  beta-prerelease:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Determine beta iteration
+        id: beta
+        run: |
+          latest_iteration=$(git tag -l "beta-*" | sed -n 's/^beta-\([0-9]\+\)$/\1/p' | sort -n | tail -1)
+
+          if [ -z "$latest_iteration" ]; then
+            next_iteration=1
+          else
+            next_iteration=$((latest_iteration + 1))
+          fi
+
+          echo "iteration=$next_iteration" >> "$GITHUB_OUTPUT"
+          echo "tag=beta-$next_iteration" >> "$GITHUB_OUTPUT"
+          echo "release_name=Beta $next_iteration" >> "$GITHUB_OUTPUT"
+
+      - name: Create draft prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.beta.outputs.tag }}" \
+            --title "${{ steps.beta.outputs.release_name }}" \
+            --draft \
+            --prerelease
+
+      - name: Publish Windows
+        run: dotnet publish ContactToVCard.csproj -c Release -r win-x64
+
+      - name: Publish Linux
+        run: dotnet publish ContactToVCard.csproj -c Release -r linux-x64
+
+      - name: Upload release artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/win-x64/publish/ContactToVCard.exe"
+          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/linux-x64/publish/ContactToVCard"
