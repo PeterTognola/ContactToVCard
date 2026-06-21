@@ -3,23 +3,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace ContactToVCard.Models;
 
-public partial class ContactFile : ObservableObject
+public partial class ContactFile(string filePath, bool isComplete = false, bool isError = false)
+    : ObservableObject
 {
-    public ContactFile(string filePath, bool isComplete = false, bool isError = false)
-    {
-        this.filePath = filePath;
-        this.isComplete = isComplete;
-        this.isError = isError;
-    }
+    [ObservableProperty]
+    private string _filePath = filePath;
 
     [ObservableProperty]
-    private string filePath;
+    private bool _isComplete = isComplete;
 
     [ObservableProperty]
-    private bool isComplete;
-
-    [ObservableProperty]
-    private bool isError;
+    private bool _isError = isError;
 
     public string FileName => Path.GetFileNameWithoutExtension(FilePath);
 
