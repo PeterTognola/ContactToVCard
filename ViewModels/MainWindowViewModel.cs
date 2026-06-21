@@ -19,7 +19,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     private string selectedFilesSummary = "No files selected.";
 
     [ObservableProperty]
-    private string selectedOutputFolderSummary = "No output folder selected.";
+    private string selectedOutputFolderSummary = "No folder selected.";
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
@@ -83,7 +83,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         selectedOutputFolder = folderPath;
 
         SelectedOutputFolderSummary = string.IsNullOrWhiteSpace(folderPath)
-            ? "No output folder selected."
+            ? "No folder selected."
             : $"Output folder:\n{folderPath}";
     }
 

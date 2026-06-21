@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:ContactToVCard.Controls"
+             x:Class="ContactToVCard.Controls.ActionSummaryControl"
+             x:DataType="controls:ActionSummaryControl"
+             x:Name="Root">
+    <StackPanel>
+        <Button
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            Content="{Binding ButtonText, ElementName=Root}"
+            Command="{Binding ActionCommand, ElementName=Root}" />
+
+        <TextBlock
+            HorizontalAlignment="Center"
+            Text="{Binding SummaryText, ElementName=Root}"
+            TextWrapping="Wrap" />
+    </StackPanel>
+</UserControl>
