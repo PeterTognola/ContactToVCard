@@ -36,12 +36,9 @@ public class ConvertContactService : IConvertContactService
         
         var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".vcf");
         
-        // Extract data from the CONTACT document and write it to a stream.
-        using var writer = new StreamWriter(vcfPath);
-        
         // Begin VCard.
         
-        return WriteBlueprint(writer, writer =>
+        return WriteBlueprint(vcfPath, writer =>
         {
             if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
             {
@@ -62,11 +59,14 @@ public class ConvertContactService : IConvertContactService
             if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
             return true;
-        });;
+        });
     }
 
-    private static bool WriteBlueprint(StreamWriter writer, Func<StreamWriter, bool> contents)
+    private static bool WriteBlueprint(string vcfPath, Func<StreamWriter, bool> contents)
     {
+        // Extract data from the CONTACT document and write it to a stream.
+        using var writer = new StreamWriter(vcfPath);
+        
         // Begin VCard.
         writer.WriteLine("BEGIN:VCARD");
         writer.WriteLine("VERSION:3.0");
