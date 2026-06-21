@@ -97,6 +97,6 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     private sealed class DesignTimeContactConverterService : IConvertContactService
     {
-        public bool ConvertAsync(string file, string outputFolder) => true;
+        public bool ConvertAndSaveContact(string file, string outputFolder) => true;
     }
 }
