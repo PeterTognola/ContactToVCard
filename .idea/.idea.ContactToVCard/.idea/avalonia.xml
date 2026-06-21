@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="App.axaml" value="ContactToVCard.csproj" />
+        <entry key="Controls/ActionSummaryControl.axaml" value="ContactToVCard.csproj" />
         <entry key="Views/MainWindow.axaml" value="ContactToVCard.csproj" />
       </map>
     </option>

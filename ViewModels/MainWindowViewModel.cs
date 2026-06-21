@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ContactToVCard.Models;
 using ContactToVCard.Services;
 
 namespace ContactToVCard.ViewModels;
@@ -17,7 +19,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     private string selectedFilesSummary = "No files selected.";
 
     [ObservableProperty]
-    private string selectedOutputFolderSummary = "No output folder selected.";
+    private string selectedOutputFolderSummary = "No folder selected.";
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
@@ -25,7 +27,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press process.";
     public string TitleText { get; set; } = "Contact To VCard";
     
-    private List<string> selectedFiles { get; set; }
+    public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
     private string selectedOutputFolder { get; set; }
 
@@ -47,27 +49,33 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     [RelayCommand]
     private async Task HandleProcessAsync()
     {
-        if (selectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
+        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
         {
             // todo warn user message.
             return;
         }
 
-        foreach (var file in selectedFiles)
+        foreach (var file in SelectedFiles)
         {
-            convertContactService.ConvertAsync(file, selectedOutputFolder);
+            var process = convertContactService.ConvertAsync(file.FilePath, selectedOutputFolder);
+            
+            file.IsError = !process;
+            file.IsComplete = true;
         }
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
     {
-        var files = filePaths.ToList();
+        SelectedFiles.Clear();
 
-        selectedFiles = files;
+        foreach (var file in filePaths.Select(x => new ContactFile(x)))
+        {
+            SelectedFiles.Add(file);
+        }
 
-        SelectedFilesSummary = files.Count == 0
+        SelectedFilesSummary = SelectedFiles.Count == 0
             ? "No files selected."
-            : $"Selected {files.Count} file(s)";
+            : $"Selected {SelectedFiles.Count} file(s)";
     }
 
     private void SetSelectedOutputFolder(string? folderPath)
@@ -75,7 +83,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         selectedOutputFolder = folderPath;
 
         SelectedOutputFolderSummary = string.IsNullOrWhiteSpace(folderPath)
-            ? "No output folder selected."
+            ? "No folder selected."
             : $"Output folder:\n{folderPath}";
     }
 
@@ -89,6 +97,6 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     private sealed class DesignTimeContactConverterService : IConvertContactService
     {
-        public bool ConvertAsync(string file, string outputFolder) => true;
+        public bool ConvertAndSaveContact(string file, string outputFolder) => true;
     }
 }
