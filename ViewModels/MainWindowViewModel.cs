@@ -56,7 +56,10 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
         foreach (var file in selectedFiles)
         {
-            convertContactService.ConvertAsync(file, selectedOutputFolder);
+            var process = convertContactService.ConvertAsync(file.FilePath, selectedOutputFolder);
+            
+            file.HasError = !process;
+            file.IsComplete = true;
         }
     }
 
