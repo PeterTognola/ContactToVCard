@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ public class ConvertContactService : IConvertContactService
     ];
 
     private const string PhoneNodeName = "PhoneNumberCollection";
+    private const string AddressNodeName = "PhysicalAddressCollection";
     private const string EmailNodeName = "EmailAddressCollection";
     
     /// <summary>
@@ -53,6 +55,12 @@ public class ConvertContactService : IConvertContactService
 
         var phones = GetPhones(doc.GetNodeByLocalName(PhoneNodeName));
         foreach (var number in phones) writer.WriteLine($"TEL;TYPE={number.Type.ToString()},VOICE:{number.Number}");
+        
+        // todo could be multiple...
+        // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
+        //if (TryParseAddress(doc.GetNodeByLocalName(AddressNodeName), out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
+        WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
+        
         
         if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
 
@@ -103,5 +111,32 @@ public class ConvertContactService : IConvertContactService
         email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
         return !string.IsNullOrWhiteSpace(email);
+    }
+
+    private static void WriteAddresses(StreamWriter writer, XElement? collectionNode, string collectionName)
+    {
+        collectionName = collectionName.Replace("Collection", "");
+        
+        if (collectionNode == null) return;
+        
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+        {
+            if (TryParseAddress(node, out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
+        }
+    }
+    
+    private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result)
+    {
+        result = ("", "", "", "", "");
+        if (nameNode == null) return false;
+
+        var street = nameNode.GetNodeByLocalName("Street")?.Value.Replace("\n", ", ") ?? "";
+        var city = nameNode.GetNodeByLocalName("City")?.Value.Replace("\n", "") ?? "";
+        var county = nameNode.GetNodeByLocalName("State")?.Value.Replace("\n", "") ?? "";
+        var postcode = nameNode.GetNodeByLocalName("PostalCode")?.Value.Replace("\n", "") ?? "";
+        var country = nameNode.GetNodeByLocalName("Country")?.Value.Replace("\n", "") ?? "";
+        
+        result = (street, city, county, postcode, country);
+        return true;
     }
 }
