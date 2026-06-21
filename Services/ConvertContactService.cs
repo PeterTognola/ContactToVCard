@@ -65,7 +65,7 @@ public class ConvertContactService : IConvertContactService
         return true;
     }
 
-    private static IList<ContactNumber> GetPhones(XElement? phoneNode)
+    private static List<ContactNumber> GetPhones(XElement? phoneNode)
     {
         // Extract Phone Numbers safely by matching LocalName and inner Label values
         if (phoneNode == null) return [];
