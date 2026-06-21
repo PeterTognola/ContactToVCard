@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ContactToVCard.Models;
 using ContactToVCard.Services;
 
 namespace ContactToVCard.ViewModels;
@@ -25,7 +26,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press process.";
     public string TitleText { get; set; } = "Contact To VCard";
     
-    private List<string> selectedFiles { get; set; }
+    private List<ContactFile> selectedFiles { get; set; }
     
     private string selectedOutputFolder { get; set; }
 
@@ -61,13 +62,11 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
     {
-        var files = filePaths.ToList();
+        selectedFiles = filePaths.Select(x => new ContactFile(x)).ToList();
 
-        selectedFiles = files;
-
-        SelectedFilesSummary = files.Count == 0
+        SelectedFilesSummary = selectedFiles.Count == 0
             ? "No files selected."
-            : $"Selected {files.Count} file(s)";
+            : $"Selected {selectedFiles.Count} file(s)";
     }
 
     private void SetSelectedOutputFolder(string? folderPath)
