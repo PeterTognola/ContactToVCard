@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -26,7 +27,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press process.";
     public string TitleText { get; set; } = "Contact To VCard";
     
-    private List<ContactFile> selectedFiles { get; set; }
+    public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
     private string selectedOutputFolder { get; set; }
 
@@ -48,28 +49,33 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     [RelayCommand]
     private async Task HandleProcessAsync()
     {
-        if (selectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
+        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
         {
             // todo warn user message.
             return;
         }
 
-        foreach (var file in selectedFiles)
+        foreach (var file in SelectedFiles)
         {
             var process = convertContactService.ConvertAsync(file.FilePath, selectedOutputFolder);
             
-            file.HasError = !process;
+            file.IsError = !process;
             file.IsComplete = true;
         }
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
     {
-        selectedFiles = filePaths.Select(x => new ContactFile(x)).ToList();
+        SelectedFiles.Clear();
 
-        SelectedFilesSummary = selectedFiles.Count == 0
+        foreach (var file in filePaths.Select(x => new ContactFile(x)))
+        {
+            SelectedFiles.Add(file);
+        }
+
+        SelectedFilesSummary = SelectedFiles.Count == 0
             ? "No files selected."
-            : $"Selected {selectedFiles.Count} file(s)";
+            : $"Selected {SelectedFiles.Count} file(s)";
     }
 
     private void SetSelectedOutputFolder(string? folderPath)

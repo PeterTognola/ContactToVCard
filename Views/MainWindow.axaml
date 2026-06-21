@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ContactToVCard.ViewModels"
+        xmlns:converters="using:ContactToVCard.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
@@ -15,18 +16,43 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <Window.Resources>
+        <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter" />
+    </Window.Resources>
+
     <StackPanel Margin="18" Spacing="10">
-        <StackPanel Margin="0 0 0 10" Spacing="10">
+        <StackPanel Margin="0 0 0 10" Spacing="10" Height="90" Background="Blue">
             <TextBlock Text="{Binding TitleText}" TextAlignment="Center" HorizontalAlignment="Center" FontSize="24" />
             <TextBlock Text="{Binding IntroductionText}" TextWrapping="Wrap" />
         </StackPanel>
-        <StackPanel Spacing="10">
+        <ScrollViewer Height="300" Background="Red">
+            <StackPanel Spacing="10">
             <Button Content="{Binding PickFilesText}" Command="{Binding HandlePickFilesCommand}" />
             <TextBlock Text="{Binding SelectedFilesSummary}" TextWrapping="Wrap"/>
             <Button Content="{Binding PickOutputFolderText}" Command="{Binding HandlePickOutputFolderCommand}" />
             <TextBlock Text="{Binding SelectedOutputFolderSummary}" TextWrapping="Wrap"/>
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="6">
+                <StackPanel Spacing="4">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                        <TextBlock Grid.Column="0" Text="Name" FontWeight="Bold" />
+                        <TextBlock Grid.Column="1" Text="Is Complete" FontWeight="Bold" />
+                        <TextBlock Grid.Column="2" Text="Error" FontWeight="Bold" />
+                    </Grid>
+                    <ListBox ItemsSource="{Binding SelectedFiles}" MaxHeight="140">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                    <TextBlock Grid.Column="0" Text="{Binding FileName}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding IsComplete, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding IsError, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
             <Button Content="{Binding ConvertButtonText}" Command="{Binding HandleProcessCommand}" />
-            <TextBlock Text="Success" />
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </StackPanel>
 </Window>
