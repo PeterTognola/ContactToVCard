@@ -47,7 +47,7 @@ jobs:
         run: |
           gh release create "${{ steps.beta.outputs.tag }}" \
             --title "${{ steps.beta.outputs.release_name }}" \
-            --notes "To use this application, toggle assets below and download the version for your operating system. Once downloaded, you can run the application."
+            --notes "To use this application, toggle assets below and download the version for your operating system. Once downloaded, you can run the application." \
             --draft \
             --prerelease
 
