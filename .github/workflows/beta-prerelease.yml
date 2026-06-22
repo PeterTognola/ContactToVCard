@@ -47,6 +47,7 @@ jobs:
         run: |
           gh release create "${{ steps.beta.outputs.tag }}" \
             --title "${{ steps.beta.outputs.release_name }}" \
+            --notes "To use this application, toggle assets below and download the version for your operating system. Once downloaded, you can run the application."
             --draft \
             --prerelease
 
@@ -60,5 +61,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/win-x64/publish/ContactToVCard.exe"
-          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/linux-x64/publish/ContactToVCard"
+          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/win-x64/publish/ContactToVCard.exe#ContactToVCard_Windows.exe"
+          gh release upload "${{ steps.beta.outputs.tag }}" "bin/Release/net10.0/linux-x64/publish/ContactToVCard#ContactToVCard_Linux"
