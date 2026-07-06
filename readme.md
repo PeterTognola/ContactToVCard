@@ -28,6 +28,10 @@ This project is in active development, so not everything in .CONTACT files are s
 | Date of Birth | :x: | :x: |
 | Anniversary | :x: | :x: |
 | Phone Numbers | :white_check_mark: | :x: |
+| Company | :x: | :x: |
+| Job Title | :x: | :x: |
+| Website | :x: | :x: |
+| Custom Fields | See Roadmap | :x: |
 
 > If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCard element via a type.
 
@@ -49,6 +53,7 @@ The app is functional and provides basic functionality. The support of data type
 | CSV Export | Not Started | August 2026 |
 | Status Report/Health Check | Not Started | July 2026 |
 | Signed/Trusted EXE | Not Started | August 2026 |
+| Custom Fields/Attributes | Not Started | September 2026 |
 
 > The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
