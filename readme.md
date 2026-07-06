@@ -8,7 +8,8 @@ A small, completely offline, multi-platform app to convert Microsoft Contact (`.
 
 - You have some old .CONTACT files;
 - Still using Windows Contacts/People;
-- Have legacy software using .CONTACT files. 
+- Have legacy software using .CONTACT files;
+- Need to open some old files you've found;
 
 **And you need to convert to the VCard standard for using elsewhere or continued support with other apps.**
 
