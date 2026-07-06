@@ -6,7 +6,7 @@ A small, completely offline, multi-platform app to convert Microsoft Contact (`.
 
 ## Quick Start
 
-To get started all you need to do is download the executable program files from [here](https://github.com/PeterTognola/ContactToVCard/releases).
+To get started all you need to do is download the executable program files from [here](https://github.com/PeterTognola/ContactToVCard/releases). Once downloaded, just run and the app will appear (it may say untrusted source, you will need to click more info/continue).
 
 ## Building
 
@@ -29,7 +29,7 @@ This project is in active development, so not everything in .CONTACT files are s
 | Anniversary | :x: | :x: |
 | Phone Numbers | :white_check_mark: | :x: |
 
-> If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCF element via a type.
+> If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCard element via a type.
 
 ## Rationale
 
@@ -41,9 +41,14 @@ So I thought I'd put together a simple to use app to do this (and hadn't had the
 
 ## Roadmap
 
-| Feature | Status | Estimate |
+| Feature | Status | Completion Estimate |
 | ------- | ------ | -------- |
-| todo    | todo   | todo     |
+| Complete Entity Coverage | In Progress  | July 2026 |
+| CSV Export | Not Started | August 2026 |
+| Status Report/Health Check | Not Started | July 2026 |
+| Signed/Trusted EXE | Not Started | August 2026 |
+
+> The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
 ## Contributing
 
