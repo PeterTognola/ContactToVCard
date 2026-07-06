@@ -10,6 +10,7 @@ A small, completely offline, multi-platform app to convert Microsoft Contact (`.
 - Still using Windows Contacts/People;
 - Have legacy software using .CONTACT files;
 - Need to open some old files you've found;
+- And more...
 
 **And you need to convert to the VCard standard for using elsewhere or continued support with other apps.**
 
@@ -63,6 +64,7 @@ The app is functional and provides basic functionality. The support of data type
 | CSV Export | Not Started | August 2026 |
 | Signed/Trusted EXE | Not Started | August 2026 |
 | Custom Fields/Attributes | Not Started | September 2026 |
+| Mac Releases (?) | Not Started | September 2026 |
 
 > The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
