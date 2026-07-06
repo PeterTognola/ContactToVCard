@@ -4,6 +4,14 @@
 
 A small, completely offline, multi-platform app to convert Microsoft Contact (`.CONTACT`) files to VCard files (`.VCF`).
 
+**Useful if:**
+
+- You have some old .CONTACT files;
+- Still using Windows Contacts/People;
+- Have legacy software using .CONTACT files. 
+
+**And you need to convert to the VCard standard for using elsewhere or continued support with other apps.**
+
 ## Quick Start
 
 To get started all you need to do is download the executable program files from [here](https://github.com/PeterTognola/ContactToVCard/releases). Once downloaded, just run and the app will appear (it may say untrusted source, you will need to click more info/continue).
