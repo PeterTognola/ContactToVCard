@@ -1,5 +1,7 @@
 # ContactToVCard
 
+To use, download the latest version [here](https://github.com/PeterTognola/ContactToVCard/releases) and open/run it. Further information can be found under [Quick Start](#quick-start).
+
 ## What is ContactToVCard
 
 A small, completely offline, multi-platform app to convert Microsoft Contact (`.CONTACT`) files to VCard files (`.VCF`).
@@ -16,7 +18,9 @@ A small, completely offline, multi-platform app to convert Microsoft Contact (`.
 
 ## Quick Start
 
-To get started all you need to do is download the executable program files from [here](https://github.com/PeterTognola/ContactToVCard/releases). Once downloaded, just run and the app will appear (it may say untrusted source, you will need to click more info/continue).
+To get started all you need to do is download the executable program files from [here](https://github.com/PeterTognola/ContactToVCard/releases).
+
+Once downloaded, just run and the app will appear (it may say untrusted source, you will need to click more info/continue).
 
 ## Building
 
