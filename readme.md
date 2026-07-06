@@ -59,4 +59,35 @@ The app is functional and provides basic functionality. The support of data type
 
 ## Contributing
 
-todo.
+Any contributions are appreciated and welcome, from bug reports to implementing features. There are a few ways to go about this, detailed below.
+
+### Bugs
+
+Think you've found a bug? Report it in the issues tab in Github.  Here are some pre-requisites before reporting it though:
+
+1. Check that you've got the latest version.
+2. Double check that an existing issue doesn't already exist.
+3. If you've done the above and it is still valid, raise an **Issue** (tagged with `Bug`) with as much detail as possible (what you were doing, what platform, and any screenshots/expected functionality).
+
+Want to fix it, just raise a pull request and it will get merged and tested with the latest version.
+
+### Suggesting Features
+
+Have a cool idea? Perfect, just raise it with an **Issue**, tagged with `enhancement` and include clear concepts of the feature.
+
+Want to develop this feature to be included with the project? Please just raise a PR attached to the **Issue** and it will be merged and tested with the latest version.
+
+### Code Contributions
+
+Due to the size of the project, the structure and methodology is very basic but there are a few key areas to consider when contributing, that may affect the speed in-which the bug/feature is merged.
+
+TODO LIST OUT Structure and code pratices followed.
+
+### Branching Strategy
+
+The strategy is a basic `master < develop < hotfix|feature/branch-name`.
+
+For any PRs, please create branches from `develop` using the `hotfix/feature` methodology.
+
+- `master` proected branch where releases are created from.
+- `develop` another protected branch where the latest version of all features and bugs, waiting to be released, are held.
