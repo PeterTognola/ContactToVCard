@@ -24,6 +24,15 @@ To get started all you need to do is download the executable program files from 
 
 Once downloaded, just run and the app will appear (it may say untrusted source, you will need to click more info/continue).
 
+**Using the app:**
+
+1. Press `Select Contact Files` and select the .CONTACT files you want to convert.
+2. Press `Select Where To Save` and select a folder where you want the .VCF files to be saved.
+3. Press `Convert Contacts` and they will appear in that folder shortly.
+4. Any issues and status are shown in the table (see screenshot for example of success).
+
+![Screenshot of success usage](Assets/Screenshot-2.png)
+
 ## Building
 
 Built using C# .NET 10, all you need is the sdk installed (can be checked via `dotnet --version`) or downloaded from [here](https://dotnet.microsoft.com/en-us/download).
