@@ -19,7 +19,7 @@ Once installed, simply clone the repo then build and run inside the root folder 
 This project is in active development, so not everything in .CONTACT files are supported. Below is a list of what is and isn't supported
 
 | Contact Data | VCard Support  | CSV Support |
-| ---- | ----------------- | ----- | --- |
+| ---- | ----------------- | ----- |
 | First Name | :white_check_mark: | :x: |
 | Last Name | :white_check_mark: | :x: |
 | Other Names | :x: | :x: |
