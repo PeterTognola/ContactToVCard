@@ -41,6 +41,8 @@ So I thought I'd put together a simple to use app to do this (and hadn't had the
 
 ## Roadmap
 
+The app is functional and provides basic functionality. The support of data types can bed founder under [What's Supported](#whats-supported) section. There are plans to improve further:
+
 | Feature | Status | Completion Estimate |
 | ------- | ------ | -------- |
 | Complete Entity Coverage | In Progress  | July 2026 |
