@@ -43,20 +43,20 @@ Once installed, simply clone the repo then build and run inside the root folder 
 
 This project is in active development, so not everything in .CONTACT files are supported. Below is a list of what is and isn't supported
 
-| Contact Data | VCard Support  | CSV Support |
-| ---- | ----------------- | ----- |
-| First Name | :white_check_mark: | :x: |
-| Last Name | :white_check_mark: | :x: |
-| Other Names | :x: | :x: |
-| Email Address | :white_check_mark: | :x: |
-| Addresses | :white_check_mark: | :x: |
-| Date of Birth | :x: | :x: |
-| Anniversary | :x: | :x: |
-| Phone Numbers | :white_check_mark: | :x: |
-| Company | :x: | :x: |
-| Job Title | :x: | :x: |
-| Website | :x: | :x: |
-| Custom Fields | See Roadmap | :x: |
+| Contact Data  | VCard Support      | CSV Support |
+|---------------|--------------------|-------------|
+| First Name    | :white_check_mark: | :x:         |
+| Last Name     | :white_check_mark: | :x:         |
+| Other Names   | :x:                | :x:         |
+| Email Address | :white_check_mark: | :x:         |
+| Addresses     | :white_check_mark: | :x:         |
+| Date of Birth | :x:                | :x:         |
+| Anniversary   | :x:                | :x:         |
+| Phone Numbers | :white_check_mark: | :x:         |
+| Company       | :x:                | :x:         |
+| Job Title     | :x:                | :x:         |
+| Website       | :x:                | :x:         |
+| Custom Fields | See Roadmap        | :x:         |
 
 > If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCard element via a type.
 
@@ -72,14 +72,14 @@ So I thought I'd put together a simple to use app to do this (and hadn't had the
 
 The app is functional and provides basic functionality. The support of data types can be found under [What's Supported](#whats-supported) section. There are plans to improve further:
 
-| Feature | Status | Completion Estimate |
-| ------- | ------ | -------- |
-| Complete Entity Coverage | In Progress  | July 2026 |
-| Status Report/Health Check | Not Started | July 2026 |
-| CSV Export | Not Started | August 2026 |
-| Signed/Trusted EXE | Not Started | August 2026 |
-| Custom Fields/Attributes | Not Started | September 2026 |
-| Mac Releases (?) | Not Started | September 2026 |
+| Feature                    | Status      | Completion Estimate |
+|----------------------------|-------------|---------------------|
+| Complete Entity Coverage   | In Progress | July 2026           |
+| Status Report/Health Check | Not Started | July 2026           |
+| CSV Export                 | Not Started | August 2026         |
+| Signed/Trusted EXE         | Not Started | August 2026         |
+| Custom Fields/Attributes   | Not Started | September 2026      |
+| Mac Releases (?)           | Not Started | September 2026      |
 
 > The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
@@ -105,9 +105,68 @@ Want to develop this feature to be included with the project? Please just raise 
 
 ### Code Contributions
 
-Due to the size of the project, the structure and methodology is very basic but there are a few key areas to consider when contributing, that may affect the speed in-which the bug/feature is merged.
+Due to the size of the project, the structure and methodology are very basic but there are a few key areas to consider when contributing that may affect the speed at which the bug/feature are merged.
 
-TODO LIST OUT Structure and code pratices followed.
+This project is built with Avalonia UI and follows a simple MVVM layout.
+
+### App Entry Point
+
+- `App.axaml` defines the application theme and registers the view locator.
+- `App.axaml.cs` creates the desktop window, file picker service, and contact conversion service.
+- `ViewLocator.cs` maps view models to their matching views.
+
+### Main Window Layout
+
+- Title and introduction text at the top of the window.
+- File selection summary with a button to choose `.CONTACT` files.
+- Output folder summary with a button to choose the destination folder.
+- Status table showing each selected file, completion state, and errors.
+- Convert button to run the contact-to-vCard process.
+
+### Data Flow
+
+- `MainWindowViewModel` holds the window state and command handlers.
+- `IFilePickerService` handles file and folder selection.
+- `IConvertContactService` converts each contact file into a `.VCF` file.
+
+### Structure
+
+```text
+ContactToVCard/
+├── Assets/
+│   ├── Screenshots, icons, and sample `.CONTACT` files used for documentation and design-time preview.
+│   └── Example files for testing conversion flow.
+├── Converters/
+│   └── UI value converters used by Avalonia bindings.
+├── Controls/
+│   └── Reusable custom controls used by views.
+├── Helpers/
+│   └── Shared helper methods and utility functions.
+├── Models/
+│   └── Data models and file representations used by the conversion logic.
+├── Services/
+│   └── Application services such as file picking and contact conversion.
+├── ViewModels/
+│   └── MVVM view models that expose state and commands to the UI.
+├── Views/
+│   └── Avalonia windows and views that define the app UI.
+├── App.axaml
+│   └── Application-level XAML, theme setup, and data template registration.
+├── App.axaml.cs
+│   └── Application startup, dependency wiring, and main window creation.
+├── Program.cs
+│   └── Entry point for the Avalonia application.
+├── ViewLocator.cs
+│   └── Resolves view models to their corresponding views.
+├── ContactToVCard.csproj
+│   └── Project configuration, package references, and build settings.
+├── ContactToVCard.sln
+│   └── Solution file for opening the project in an IDE.
+├── app.manifest
+│   └── Application manifest and platform-specific metadata.
+└── readme.md
+    └── Project overview, usage notes, supported features, and contribution guidance.
+```
 
 ### Branching Strategy
 
