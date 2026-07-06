@@ -24,7 +24,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
     public string ConvertButtonText { get; } = "Convert Contacts";
-    public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press process.";
+    public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
     
     public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
