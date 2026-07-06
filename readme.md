@@ -1,5 +1,7 @@
 # ContactToVCard
 
+![Screenshots of App](Assets/Screenshot-0.png)
+
 :checkered_flag: To use, download the latest version [here](https://github.com/PeterTognola/ContactToVCard/releases) and open/run it. Further information can be found under [Quick Start](#quick-start).
 
 ## What is ContactToVCard
