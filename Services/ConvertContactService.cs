@@ -67,13 +67,13 @@ public class ConvertContactService : IConvertContactService
         using var writer = new StreamWriter(vcfPath);
         
         // Begin VCard.
-        writer.WriteLine("BEGIN:VCARD");
-        writer.WriteLine("VERSION:3.0");
+        writer.WriteVcfLine("BEGIN", "VCARD");
+        writer.WriteVcfLine("VERSION", "3.0");
         
         var result = contents(writer);
         
         // End VCard.
-        writer.WriteLine("END:VCARD");
+        writer.WriteVcfLine("END", "VCARD");
 
         return result;
     }
