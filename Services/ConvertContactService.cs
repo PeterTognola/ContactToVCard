@@ -39,10 +39,11 @@ public class ConvertContactService : IConvertContactService
         // Write the VCard.
         return WriteBlueprint(vcfPath, writer =>
         {
+            // Must have names, otherwise invalid vCard.
             if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
             {
                 writer.WriteLine($"N:{names.last};{names.first};;;");
-                writer.WriteLine($"FN:{names.formatted}");
+                writer.WriteVcfLine("FN", names.formatted);
             }
             else
             {
