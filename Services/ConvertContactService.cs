@@ -132,15 +132,21 @@ public class ConvertContactService : IConvertContactService
         
         foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
         {
-            // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
-            if (TryParseAddress(node, out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
+            if (!TryParseAddress(node, out var address, out var label)) continue;
+            
+            var prefix = label is null ? "ADR:;;" : $"ADR;TYPE={label}:;;";
+            writer.WriteLine($"{prefix}{address.street};{address.city};{address.county};{address.postcode};{address.country}");
         }
     }
     
-    private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result)
+    private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result, out string? label)
     {
         result = ("", "", "", "", "");
+        label = null;
+        
         if (nameNode == null) return false;
+        
+        label = ParseLabelType(nameNode);
 
         var street = nameNode.GetNodeByLocalName("Street")?.Value.Replace("\n", ", ") ?? "";
         var city = nameNode.GetNodeByLocalName("City")?.Value.Replace("\n", "") ?? "";
@@ -162,5 +168,10 @@ public class ConvertContactService : IConvertContactService
             : label.Contains("Work")
                 ? ContactNumberType.Work
                 : ContactNumberType.Cell;
+    }
+
+    private static string? ParseLabelType(XElement node)
+    {
+        return node.GetNodeByLocalName("Label")?.Value ?? null;
     }
 }
