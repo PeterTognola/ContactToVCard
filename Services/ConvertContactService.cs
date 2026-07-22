@@ -17,6 +17,7 @@ public class ConvertContactService : IConvertContactService
     private const string PhoneNodeName = "PhoneNumberCollection";
     private const string AddressNodeName = "PhysicalAddressCollection";
     private const string EmailNodeName = "EmailAddressCollection";
+    private const string UrlNodeName = "UrlCollection";
     
     /// <summary>
     /// Read and convert the CONTACT to VCard format, then save.
@@ -53,8 +54,10 @@ public class ConvertContactService : IConvertContactService
             WritePhones(writer, doc.GetNodeByLocalName(PhoneNodeName), PhoneNodeName);
             
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
+            
+            WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
         
-            if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
+            if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}"); // todo refactor to match others.
 
             return true;
         });
@@ -89,6 +92,18 @@ public class ConvertContactService : IConvertContactService
         result = (firstName, lastName, formattedName);
         return true;
     }
+
+    private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName)
+    {
+        collectionName = collectionName.Replace("Collection", "");
+        
+        if (collectionNode == null) return;
+        
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+        {
+            if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url); // todo check encoding.
+        }
+    }
     
     private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName)
     {
@@ -114,6 +129,16 @@ public class ConvertContactService : IConvertContactService
         };
         
         return phone.Number.Length > 0;
+    }
+
+    private static bool TryParseUrl(XElement? emailNode, out string url)
+    {
+        url = "";
+        if (emailNode == null) return false;
+
+        url = emailNode.GetNodeByLocalName("Url")?.Value ?? "";
+
+        return !string.IsNullOrWhiteSpace(url);
     }
 
     private static bool TryParseEmail(XElement? emailNode, out string email)
