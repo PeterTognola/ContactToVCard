@@ -93,27 +93,36 @@ public class ConvertContactService : IConvertContactService
         return true;
     }
 
-    private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName)
-    {
-        collectionName = collectionName.Replace("Collection", "");
-        
-        if (collectionNode == null) return;
-        
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+    private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
         {
-            if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url); // todo check encoding.
-        }
-    }
-    
-    private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName)
-    {
-        collectionName = collectionName.Replace("Collection", "");
-        
-        if (collectionNode == null) return;
-        
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+            if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url);
+        });
+
+    private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
         {
             if (TryParsePhone(node, out var phone)) writer.WriteLine($"TEL;TYPE={phone.Type.ToString()},VOICE:{phone.Number}");
+        });
+    
+    private static void WriteAddresses(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
+        {
+            if (!TryParseAddress(node, out var address, out var label)) return;
+            
+            var prefix = label is null ? "ADR:;;" : $"ADR;TYPE={label}:;;";
+            writer.WriteLine($"{prefix}{address.street};{address.city};{address.county};{address.postcode};{address.country}");
+        });
+
+    private static void ValidateAndLoopValues(XElement? collectionNode, string collectionName, Action<XElement> writer)
+    {
+        collectionName = collectionName.Replace("Collection", "");
+        
+        if (collectionNode == null) return;
+
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
+        {
+            writer(node);
         }
     }
     
@@ -146,21 +155,6 @@ public class ConvertContactService : IConvertContactService
         email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
         return !string.IsNullOrWhiteSpace(email);
-    }
-
-    private static void WriteAddresses(StreamWriter writer, XElement? collectionNode, string collectionName)
-    {
-        collectionName = collectionName.Replace("Collection", "");
-        
-        if (collectionNode == null) return;
-        
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
-        {
-            if (!TryParseAddress(node, out var address, out var label)) continue;
-            
-            var prefix = label is null ? "ADR:;;" : $"ADR;TYPE={label}:;;";
-            writer.WriteLine($"{prefix}{address.street};{address.city};{address.county};{address.postcode};{address.country}");
-        }
     }
     
     private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result, out string? label)
