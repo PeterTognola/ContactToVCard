@@ -120,10 +120,7 @@ public class ConvertContactService : IConvertContactService
         
         if (collectionNode == null) return;
 
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
-        {
-            writer(node);
-        }
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName)) writer(node);
     }
     
     private static bool TryParsePhone(XElement? phoneNode, out ContactNumber phone)
