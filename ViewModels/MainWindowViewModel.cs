@@ -16,10 +16,10 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     }
 
     [ObservableProperty]
-    private string selectedFilesSummary = "No files selected.";
+    private string _selectedFilesSummary = "No files selected.";
 
     [ObservableProperty]
-    private string selectedOutputFolderSummary = "No folder selected.";
+    private string _selectedOutputFolderSummary = "No folder selected.";
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
@@ -29,9 +29,9 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
-    private string selectedOutputFolder { get; set; }
+    private string SelectedOutputFolder { get; set; } = null!;
 
-    
+
     [RelayCommand]
     private async Task HandlePickFilesAsync()
     {
@@ -49,7 +49,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     [RelayCommand]
     private async Task HandleProcessAsync()
     {
-        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(selectedOutputFolder))
+        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
         {
             // todo warn user message.
             return;
@@ -57,7 +57,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
         foreach (var file in SelectedFiles)
         {
-            var process = convertContactService.ConvertAndSaveContact(file.FilePath, selectedOutputFolder);
+            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder);
             
             file.IsError = !process;
             file.IsComplete = true;
@@ -80,14 +80,17 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     private void SetSelectedOutputFolder(string? folderPath)
     {
-        selectedOutputFolder = folderPath;
+        SelectedOutputFolder = folderPath;
 
         SelectedOutputFolderSummary = string.IsNullOrWhiteSpace(folderPath)
             ? "No folder selected."
             : $"Output folder:\n{folderPath}";
     }
-
-    // todo move out of here, add comments related to preview.
+    
+    #region Preview
+    
+    // Contains mocked preview code.
+    
     private sealed class DesignTimeFilePickerService : IFilePickerService
     {
         public Task<IReadOnlyList<string>> PickFilesAsync() => Task.FromResult<IReadOnlyList<string>>([]);
@@ -99,4 +102,6 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     {
         public bool ConvertAndSaveContact(string file, string outputFolder) => true;
     }
+
+    #endregion
 }

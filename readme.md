@@ -43,20 +43,20 @@ Once installed, clone the repo and then build/run inside the root folder via `do
 
 This project is in active development, so not everything in .CONTACT files is supported yet. Below is a list of what is and isn't supported.
 
-| Contact Data  | VCard Support      | CSV Support |
-|---------------|--------------------|-------------|
-| First Name    | :white_check_mark: | :x:         |
-| Last Name     | :white_check_mark: | :x:         |
-| Other Names   | :x:                | :x:         |
-| Email Address | :white_check_mark: | :x:         |
-| Addresses     | :white_check_mark: | :x:         |
-| Date of Birth | :x:                | :x:         |
-| Anniversary   | :x:                | :x:         |
-| Phone Numbers | :white_check_mark: | :x:         |
-| Company       | :x:                | :x:         |
-| Job Title     | :x:                | :x:         |
-| Website       | :x:                | :x:         |
-| Custom Fields | See Roadmap        | :x:         |
+| Contact Data  | VCard Support       | CSV Support |
+|---------------|---------------------|-------------|
+| First Name    | :white_check_mark:  | :x:         |
+| Last Name     | :white_check_mark:  | :x:         |
+| Other Names   | :x:                 | :x:         |
+| Email Address | :white_check_mark:  | :x:         |
+| Addresses     | :white_check_mark:  | :x:         |
+| Date of Birth | :x:                 | :x:         |
+| Anniversary   | :x:                 | :x:         |
+| Phone Numbers | :white_check_mark:  | :x:         |
+| Company       | :x:                 | :x:         |
+| Job Title     | :x:                 | :x:         |
+| Website       | :white_check_mark:  | :x:         |
+| Custom Fields | See Roadmap         | :x:         |
 
 > If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCard element via a type.
 

@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Xml.Linq;
 using ContactToVCard.Helpers;
 
@@ -19,6 +17,7 @@ public class ConvertContactService : IConvertContactService
     private const string PhoneNodeName = "PhoneNumberCollection";
     private const string AddressNodeName = "PhysicalAddressCollection";
     private const string EmailNodeName = "EmailAddressCollection";
+    private const string UrlNodeName = "UrlCollection";
     
     /// <summary>
     /// Read and convert the CONTACT to VCard format, then save.
@@ -41,10 +40,11 @@ public class ConvertContactService : IConvertContactService
         // Write the VCard.
         return WriteBlueprint(vcfPath, writer =>
         {
+            // Must have names, otherwise invalid vCard.
             if (TryParseNames(doc.GetNodeByLocalName(NameNodeName), out var names))
             {
                 writer.WriteLine($"N:{names.last};{names.first};;;");
-                writer.WriteLine($"FN:{names.formatted}");
+                writer.WriteVcfLine("FN", names.formatted);
             }
             else
             {
@@ -54,8 +54,10 @@ public class ConvertContactService : IConvertContactService
             WritePhones(writer, doc.GetNodeByLocalName(PhoneNodeName), PhoneNodeName);
             
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
+            
+            WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
         
-            if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}");
+            if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}"); // todo refactor to match others.
 
             return true;
         });
@@ -67,13 +69,13 @@ public class ConvertContactService : IConvertContactService
         using var writer = new StreamWriter(vcfPath);
         
         // Begin VCard.
-        writer.WriteLine("BEGIN:VCARD");
-        writer.WriteLine("VERSION:3.0");
+        writer.WriteVcfLine("BEGIN", "VCARD");
+        writer.WriteVcfLine("VERSION", "3.0");
         
         var result = contents(writer);
         
         // End VCard.
-        writer.WriteLine("END:VCARD");
+        writer.WriteVcfLine("END", "VCARD");
 
         return result;
     }
@@ -90,17 +92,35 @@ public class ConvertContactService : IConvertContactService
         result = (firstName, lastName, formattedName);
         return true;
     }
+
+    private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
+        {
+            if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url);
+        });
+
+    private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
+        {
+            if (TryParsePhone(node, out var phone)) writer.WriteLine($"TEL;TYPE={phone.Type.ToString()},VOICE:{phone.Number}");
+        });
     
-    private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName)
+    private static void WriteAddresses(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
+        {
+            if (!TryParseAddress(node, out var address, out var label)) return;
+            
+            var prefix = label is null ? "ADR:;;" : $"ADR;TYPE={label}:;;";
+            writer.WriteLine($"{prefix}{address.street};{address.city};{address.county};{address.postcode};{address.country}");
+        });
+
+    private static void ValidateAndLoopValues(XElement? collectionNode, string collectionName, Action<XElement> writer)
     {
         collectionName = collectionName.Replace("Collection", "");
         
         if (collectionNode == null) return;
-        
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
-        {
-            if (TryParsePhone(node, out var phone)) writer.WriteLine($"TEL;TYPE={phone.Type.ToString()},VOICE:{phone.Number}");
-        }
+
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName)) writer(node);
     }
     
     private static bool TryParsePhone(XElement? phoneNode, out ContactNumber phone)
@@ -117,30 +137,31 @@ public class ConvertContactService : IConvertContactService
         return phone.Number.Length > 0;
     }
 
+    private static bool TryParseUrl(XElement? emailNode, out string url)
+    {
+        url = "";
+        if (emailNode == null) return false;
+
+        url = emailNode.GetNodeByLocalName("Url")?.Value ?? "";
+
+        return !string.IsNullOrWhiteSpace(url);
+    }
+
     private static bool TryParseEmail(XElement? emailNode, out string email)
     {
         email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
         return !string.IsNullOrWhiteSpace(email);
     }
-
-    private static void WriteAddresses(StreamWriter writer, XElement? collectionNode, string collectionName)
-    {
-        collectionName = collectionName.Replace("Collection", "");
-        
-        if (collectionNode == null) return;
-        
-        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName))
-        {
-            // todo import type ADR;TYPE=work:;;STREET;CITY;COUNTY;POSTCODE;COUNTRY
-            if (TryParseAddress(node, out var address)) writer.WriteLine($"ADR:;;{address.street};{address.city};{address.county};{address.postcode};{address.country}");
-        }
-    }
     
-    private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result)
+    private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result, out string? label)
     {
         result = ("", "", "", "", "");
+        label = null;
+        
         if (nameNode == null) return false;
+        
+        label = ParseLabelType(nameNode);
 
         var street = nameNode.GetNodeByLocalName("Street")?.Value.Replace("\n", ", ") ?? "";
         var city = nameNode.GetNodeByLocalName("City")?.Value.Replace("\n", "") ?? "";
@@ -162,5 +183,10 @@ public class ConvertContactService : IConvertContactService
             : label.Contains("Work")
                 ? ContactNumberType.Work
                 : ContactNumberType.Cell;
+    }
+
+    private static string? ParseLabelType(XElement node)
+    {
+        return node.GetNodeByLocalName("Label")?.Value ?? null;
     }
 }
