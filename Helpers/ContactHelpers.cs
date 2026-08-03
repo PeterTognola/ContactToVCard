@@ -42,14 +42,10 @@ public static class ContactHelpers
             var result = elements.FirstOrDefault(e => e.Name.LocalName == name);
             if (result != null) return result;
 
-            foreach (var e in elements)
-            {
-                var re = e.RecursivelyGetElement(name, maxDepth - 1);
-                
-                if (re != null) return re;
-            }
-            
-            return null;
+            return 
+                elements
+                    .Select(e => e.RecursivelyGetElement(name, maxDepth - 1))
+                    .OfType<XElement>().FirstOrDefault();
         }
     }
 }
