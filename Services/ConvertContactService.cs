@@ -67,18 +67,12 @@ public class ConvertContactService : IConvertContactService
             
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
             
-            // WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
-            
             // Single(?) values (although not single from MS perspective).
             WriteSimple(writer, doc.GetNodeByLocalName(UrlNodeName), [UrlNodeName], "URL");
             WriteSimple(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName, "ORG");
             WriteSimple(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName, "TITLE");
             WriteSimple(writer, doc.GetNodeByLocalName(BirthdayNodeName), [BirthdayNodeName], "BDAY");
             WriteSimple(writer, doc.GetNodeByLocalName(AnniversaryNodeName), [AnniversaryNodeName], "X-ANNIVERSARY");
-            //WriteCompany(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName);
-            // WriteTitle(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName);
-            // WriteBirthday(writer, doc.GetNodeByLocalName(BirthdayNodeName), BirthdayNodeName);
-            // WriteAnniversary(writer, doc.GetNodeByLocalName(AnniversaryNodeName), AnniversaryNodeName);
         
             if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}"); // todo refactor to match others.
 
@@ -89,7 +83,7 @@ public class ConvertContactService : IConvertContactService
     private static bool WriteBlueprint(string vcfPath, Func<StreamWriter, bool> contents)
     {
         // Extract data from the CONTACT document and write it to a stream.
-        using var writer = new StreamWriter(vcfPath);
+        using var writer = new StreamWriter(vcfPath); // todo interface, so we can mock it?
         
         // Begin VCard.
         writer.WriteVcfLine("BEGIN", "VCARD");
@@ -121,12 +115,6 @@ public class ConvertContactService : IConvertContactService
         ValidateAndLoopValues(collections, collectionName, node =>
         {
             if (TryParseSingleValue(node, collectionName, out var value)) writer.WriteVcfLine(vcfLine, value);
-        });
-
-    private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName) =>
-        ValidateAndLoopValues(collectionNode, collectionName, node =>
-        {
-            if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url);
         });
 
     private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName) =>
@@ -176,25 +164,12 @@ public class ConvertContactService : IConvertContactService
         return phone.Number.Length > 0;
     }
 
-    private static bool TryParseUrl(XElement? emailNode, out string url)
-    {
-        url = "";
-        if (emailNode == null) return false;
-
-        url = emailNode.GetNodeByLocalName("Url")?.Value ?? "";
-
-        return !string.IsNullOrWhiteSpace(url);
-    }
-
     private static bool TryParseEmail(XElement? emailNode, out string email)
     {
         email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
         return !string.IsNullOrWhiteSpace(email);
     }
-
-    private static bool TryParseSingleValue(XElement? node, string nodeName, out string value)
-        => TryParseSingleValue(node, [nodeName], out value);
     
     private static bool TryParseSingleValue(XElement? node, string[] nodeName, out string value)
     {
