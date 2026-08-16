@@ -43,20 +43,20 @@ Once installed, clone the repo and then build/run inside the root folder via `do
 
 This project is in active development, so not everything in .CONTACT files is supported yet. Below is a list of what is and isn't supported.
 
-| Contact Data  | VCard Support       | CSV Support |
-|---------------|---------------------|-------------|
-| First Name    | :white_check_mark:  | :x:         |
-| Last Name     | :white_check_mark:  | :x:         |
-| Other Names   | :x:                 | :x:         |
-| Email Address | :white_check_mark:  | :x:         |
-| Addresses     | :white_check_mark:  | :x:         |
-| Date of Birth | :x:                 | :x:         |
-| Anniversary   | :x:                 | :x:         |
-| Phone Numbers | :white_check_mark:  | :x:         |
-| Company       | :x:                 | :x:         |
-| Job Title     | :x:                 | :x:         |
-| Website       | :white_check_mark:  | :x:         |
-| Custom Fields | See Roadmap         | :x:         |
+| Contact Data  | VCard Support      | CSV Support |
+|---------------|--------------------|-------------|
+| First Name    | :white_check_mark: | :x:         |
+| Last Name     | :white_check_mark: | :x:         |
+| Other Names   | :white_check_mark: | :x:         |
+| Email Address | :white_check_mark: | :x:         |
+| Addresses     | :white_check_mark: | :x:         |
+| Date of Birth | :white_check_mark: | :x:         |
+| Anniversary   | :white_check_mark: | :x:         |
+| Phone Numbers | :white_check_mark: | :x:         |
+| Company       | :white_check_mark: | :x:         |
+| Job Title     | :white_check_mark: | :x:         |
+| Website       | :white_check_mark: | :x:         |
+| Custom Fields | See Roadmap        | :x:         |
 
 > If otherwise stated, elements like "Other Address" that are their own entity will be merged with the corresponding VCard element via a type.
 
@@ -74,14 +74,14 @@ The app is functional and provides basic functionality. The support of data type
 
 | Feature                    | Status      | Completion Estimate |
 |----------------------------|-------------|---------------------|
-| Complete Entity Coverage   | In Progress | July 2026           |
+| Complete Entity Coverage   | Completed   | July 2026           |
 | Status Report/Health Check | Not Started | July 2026           |
 | CSV Export                 | Not Started | August 2026         |
 | Signed/Trusted EXE         | Not Started | August 2026         |
 | Custom Fields/Attributes   | Not Started | September 2026      |
 | Mac Releases (?)           | Not Started | September 2026      |
 
-> The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
+> The completion estimates are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
 ## Contributing
 
