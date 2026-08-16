@@ -70,10 +70,14 @@ public class ConvertContactService : IConvertContactService
             WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
             
             // Single(?) values (although not single from MS perspective).
-            WriteCompany(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName);
-            WriteTitle(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName);
-            WriteBirthday(writer, doc.GetNodeByLocalName(BirthdayNodeName), BirthdayNodeName);
-            WriteAnniversary(writer, doc.GetNodeByLocalName(AnniversaryNodeName), AnniversaryNodeName);
+            WriteSimple(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName, "ORG");
+            WriteSimple(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName, "TITLE");
+            WriteSimple(writer, doc.GetNodeByLocalName(BirthdayNodeName), [BirthdayNodeName], "BDAY");
+            WriteSimple(writer, doc.GetNodeByLocalName(AnniversaryNodeName), [AnniversaryNodeName], "X-ANNIVERSARY");
+            //WriteCompany(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName);
+            // WriteTitle(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName);
+            // WriteBirthday(writer, doc.GetNodeByLocalName(BirthdayNodeName), BirthdayNodeName);
+            // WriteAnniversary(writer, doc.GetNodeByLocalName(AnniversaryNodeName), AnniversaryNodeName);
         
             if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}"); // todo refactor to match others.
 
@@ -112,6 +116,12 @@ public class ConvertContactService : IConvertContactService
     }
     
     // todo These could be merged, when the out is only a single value. Need to confirm labels as well.
+    private static void WriteSimple(StreamWriter writer, XElement? collections, string[] collectionName, string vcfLine) =>
+        ValidateAndLoopValues(collections, collectionName, node =>
+        {
+            if (TryParseSingleValue(node, collectionName, out var value)) writer.WriteVcfLine(vcfLine, value);
+        });
+    
     private static void WriteCompany(StreamWriter writer, XElement? companyNode, string[] collectionName) =>
         ValidateAndLoopValues(companyNode, collectionName, node =>
         {
