@@ -11,8 +11,6 @@ A small, completely offline, multi-platform app to convert Microsoft Contact (`.
 **Useful if:**
 
 - You have some old .CONTACT files;
-
-wsaawdawdwdawdawd
 - Still using Windows Contacts/People;
 - Have legacy software using .CONTACT files;
 - Need to open some old files you've found;
