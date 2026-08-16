@@ -110,7 +110,6 @@ public class ConvertContactService : IConvertContactService
         return true;
     }
     
-    // todo These could be merged, when the out is only a single value. Need to confirm labels as well.
     private static void WriteSimple(StreamWriter writer, XElement? collections, string[] collectionName, string vcfLine) =>
         ValidateAndLoopValues(collections, collectionName, node =>
         {
@@ -183,7 +182,7 @@ public class ConvertContactService : IConvertContactService
         return !string.IsNullOrWhiteSpace(value);
     }
 
-    private static bool TryParseDate(XElement? dateNode, out string value)
+    private static bool TryParseDate(XElement? dateNode, out string value) // todo might not be needed.
     {
         value = "";
         if (dateNode == null) return false;
