@@ -83,7 +83,7 @@ The app is functional and provides basic functionality. The support of data type
 | Custom Fields/Attributes   | Not Started | September 2026      |
 | Mac Releases (?)           | Not Started | September 2026      |
 
-> The completion estimate are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
+> The completion estimates are loosley based estimates based on my available time. If you want to contribute, anything that hasn't been started can be picked up. For more details, see below for contributing guide.
 
 ## Contributing
 
