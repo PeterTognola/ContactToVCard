@@ -67,9 +67,10 @@ public class ConvertContactService : IConvertContactService
             
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
             
-            WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
+            // WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
             
             // Single(?) values (although not single from MS perspective).
+            WriteSimple(writer, doc.GetNodeByLocalName(UrlNodeName), [UrlNodeName], "URL");
             WriteSimple(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName, "ORG");
             WriteSimple(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName, "TITLE");
             WriteSimple(writer, doc.GetNodeByLocalName(BirthdayNodeName), [BirthdayNodeName], "BDAY");
@@ -121,35 +122,11 @@ public class ConvertContactService : IConvertContactService
         {
             if (TryParseSingleValue(node, collectionName, out var value)) writer.WriteVcfLine(vcfLine, value);
         });
-    
-    private static void WriteCompany(StreamWriter writer, XElement? companyNode, string[] collectionName) =>
-        ValidateAndLoopValues(companyNode, collectionName, node =>
-        {
-            if (TryParseSingleValue(node, CompanyNodeName, out var company)) writer.WriteVcfLine("ORG", company);
-        });
-    
-    private static void WriteTitle(StreamWriter writer, XElement? companyNode, string[] collectionName) =>
-        ValidateAndLoopValues(companyNode, collectionName, node =>
-        {
-            if (TryParseSingleValue(node, JobTitleNodeName, out var jobTitle)) writer.WriteVcfLine("TITLE", jobTitle);
-        });
-    
-    private static void WriteBirthday(StreamWriter writer, XElement? companyNode, string collectionName) =>
-        ValidateAndLoopValues(companyNode, collectionName, node =>
-        {
-            if (TryParseSingleValue(node, BirthdayNodeName, out var birthday)) writer.WriteVcfLine("BDAY", birthday);
-        });
 
     private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName) =>
         ValidateAndLoopValues(collectionNode, collectionName, node =>
         {
             if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url);
-        });
-    
-    private static void WriteAnniversary(StreamWriter writer, XElement? collectionNode, string collectionName) =>
-        ValidateAndLoopValues(collectionNode, collectionName, node =>
-        {
-            if (TryParseSingleValue(node, AnniversaryNodeName, out var anniversary)) writer.WriteVcfLine("X-ANNIVERSARY", anniversary);
         });
 
     private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName) =>
