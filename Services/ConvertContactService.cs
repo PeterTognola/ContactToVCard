@@ -18,6 +18,18 @@ public class ConvertContactService : IConvertContactService
     private const string AddressNodeName = "PhysicalAddressCollection";
     private const string EmailNodeName = "EmailAddressCollection";
     private const string UrlNodeName = "UrlCollection";
+    private static readonly string[] CompanyNodeName =
+    [
+        "Company",
+        "CompanyName"
+    ];
+    private static readonly string[] JobTitleNodeName =
+    [
+        "JobTitle",
+        "Title"
+    ];
+    private const string BirthdayNodeName = "Birthday";
+    private const string AnniversaryNodeName = "Anniversary";
     
     /// <summary>
     /// Read and convert the CONTACT to VCard format, then save.
@@ -56,6 +68,12 @@ public class ConvertContactService : IConvertContactService
             WriteAddresses(writer, doc.GetNodeByLocalName(AddressNodeName), AddressNodeName);
             
             WriteUrls(writer, doc.GetNodeByLocalName(UrlNodeName), UrlNodeName);
+            
+            // Single(?) values (although not single from MS perspective).
+            WriteCompany(writer, doc.GetNodeByLocalName(CompanyNodeName), CompanyNodeName);
+            WriteTitle(writer, doc.GetNodeByLocalName(JobTitleNodeName), JobTitleNodeName);
+            WriteBirthday(writer, doc.GetNodeByLocalName(BirthdayNodeName), BirthdayNodeName);
+            WriteAnniversary(writer, doc.GetNodeByLocalName(AnniversaryNodeName), AnniversaryNodeName);
         
             if (TryParseEmail(doc.GetNodeByLocalName(EmailNodeName), out var email)) writer.WriteLine($"EMAIL;TYPE=PREF,INTERNET:{email}"); // todo refactor to match others.
 
@@ -92,11 +110,36 @@ public class ConvertContactService : IConvertContactService
         result = (firstName, lastName, formattedName);
         return true;
     }
+    
+    // todo These could be merged, when the out is only a single value. Need to confirm labels as well.
+    private static void WriteCompany(StreamWriter writer, XElement? companyNode, string[] collectionName) =>
+        ValidateAndLoopValues(companyNode, collectionName, node =>
+        {
+            if (TryParseSingleValue(node, CompanyNodeName, out var company)) writer.WriteVcfLine("ORG", company);
+        });
+    
+    private static void WriteTitle(StreamWriter writer, XElement? companyNode, string[] collectionName) =>
+        ValidateAndLoopValues(companyNode, collectionName, node =>
+        {
+            if (TryParseSingleValue(node, JobTitleNodeName, out var jobTitle)) writer.WriteVcfLine("TITLE", jobTitle);
+        });
+    
+    private static void WriteBirthday(StreamWriter writer, XElement? companyNode, string collectionName) =>
+        ValidateAndLoopValues(companyNode, collectionName, node =>
+        {
+            if (TryParseSingleValue(node, BirthdayNodeName, out var birthday)) writer.WriteVcfLine("BDAY", birthday);
+        });
 
     private static void WriteUrls(StreamWriter writer, XElement? collectionNode, string collectionName) =>
         ValidateAndLoopValues(collectionNode, collectionName, node =>
         {
             if (TryParseUrl(node, out var url)) writer.WriteVcfLine("URL", url);
+        });
+    
+    private static void WriteAnniversary(StreamWriter writer, XElement? collectionNode, string collectionName) =>
+        ValidateAndLoopValues(collectionNode, collectionName, node =>
+        {
+            if (TryParseSingleValue(node, AnniversaryNodeName, out var anniversary)) writer.WriteVcfLine("X-ANNIVERSARY", anniversary);
         });
 
     private static void WritePhones(StreamWriter writer, XElement? collectionNode, string collectionName) =>
@@ -117,6 +160,15 @@ public class ConvertContactService : IConvertContactService
     private static void ValidateAndLoopValues(XElement? collectionNode, string collectionName, Action<XElement> writer)
     {
         collectionName = collectionName.Replace("Collection", "");
+        
+        if (collectionNode == null) return;
+
+        foreach (var node in collectionNode.Elements().Where(x => x.Name.LocalName == collectionName)) writer(node);
+    }
+    
+    private static void ValidateAndLoopValues(XElement? collectionNode, string[] collectionNames, Action<XElement> writer)
+    {
+        var collectionName = collectionNames.First().Replace("Collection", "");
         
         if (collectionNode == null) return;
 
@@ -152,6 +204,41 @@ public class ConvertContactService : IConvertContactService
         email = emailNode?.GetNodeByLocalName("EmailAddress")?.GetNodeByLocalName("Address")?.Value ?? "";
         
         return !string.IsNullOrWhiteSpace(email);
+    }
+
+    private static bool TryParseSingleValue(XElement? node, string nodeName, out string value)
+        => TryParseSingleValue(node, [nodeName], out value);
+    
+    private static bool TryParseSingleValue(XElement? node, string[] nodeName, out string value)
+    {
+        value = "";
+        nodeName = nodeName.Select(n => n.Replace("Collection", "")).ToArray();
+        
+        if (node == null) return false;
+
+        value = node.GetNodeByLocalName(nodeName)?.Value ?? "";
+
+        return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryParseDate(XElement? dateNode, out string value)
+    {
+        value = "";
+        if (dateNode == null) return false;
+
+        var raw = dateNode.Value?.Trim();
+        if (string.IsNullOrWhiteSpace(raw)) return false;
+
+        value = NormalizeDate(raw);
+        return value.Length > 0;
+    }
+
+    private static string NormalizeDate(string raw)
+    {
+        if (DateTimeOffset.TryParse(raw, out var parsedOffset)) return parsedOffset.ToString("yyyy-MM-dd");
+        if (DateTime.TryParse(raw, out var parsedDate)) return parsedDate.ToString("yyyy-MM-dd");
+
+        return raw;
     }
     
     private static bool TryParseAddress(XElement? nameNode, out (string street, string city, string county, string postcode, string country) result, out string? label)

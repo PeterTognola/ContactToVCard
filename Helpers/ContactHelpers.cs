@@ -32,6 +32,9 @@ public static class ContactHelpers
 
             return element.RecursivelyGetElement(localName, 2);
         }
+        
+        public XElement? GetNodeByLocalName(string[] localNames) 
+            => localNames.Select(element.GetNodeByLocalName).OfType<XElement>().FirstOrDefault();
 
         private XElement? RecursivelyGetElement(string name, int maxDepth = 2)
         {
