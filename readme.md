@@ -52,11 +52,11 @@ This project is in active development, so not everything in .CONTACT files is su
 | Other Names   | :white_check_mark: | :x:         |
 | Email Address | :white_check_mark: | :x:         |
 | Addresses     | :white_check_mark: | :x:         |
-| Date of Birth | :x:                | :x:         |
-| Anniversary   | :x:                | :x:         |
+| Date of Birth | :white_check_mark: | :x:         |
+| Anniversary   | :white_check_mark: | :x:         |
 | Phone Numbers | :white_check_mark: | :x:         |
-| Company       | :x:                | :x:         |
-| Job Title     | :x:                | :x:         |
+| Company       | :white_check_mark: | :x:         |
+| Job Title     | :white_check_mark: | :x:         |
 | Website       | :white_check_mark: | :x:         |
 | Custom Fields | See Roadmap        | :x:         |
 
@@ -76,7 +76,7 @@ The app is functional and provides basic functionality. The support of data type
 
 | Feature                    | Status      | Completion Estimate |
 |----------------------------|-------------|---------------------|
-| Complete Entity Coverage   | In Progress | July 2026           |
+| Complete Entity Coverage   | Completed   | July 2026           |
 | Status Report/Health Check | Not Started | July 2026           |
 | CSV Export                 | Not Started | August 2026         |
 | Signed/Trusted EXE         | Not Started | August 2026         |
