@@ -65,6 +65,7 @@
                 </Border>
                 
                 <Button HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Content="{Binding ConvertButtonText}" Command="{Binding HandleProcessCommand}" />
+                <Button HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Content="{Binding ConvertCsvButtonText}" Command="{Binding HandleCsvExportCommand}" />
             </StackPanel>
         </ScrollViewer>
     </StackPanel>

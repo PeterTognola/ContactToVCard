@@ -23,7 +23,8 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
-    public string ConvertButtonText { get; } = "Convert Contacts";
+    public string ConvertButtonText { get; } = "Convert Contacts To VCF";
+    public string ConvertCsvButtonText { get; } = "Convert Contacts To CSV";
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
     
@@ -58,6 +59,25 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         foreach (var file in SelectedFiles)
         {
             var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder);
+            
+            file.IsError = !process;
+            file.IsComplete = true;
+        }
+    }
+
+    [RelayCommand]
+    private async Task HandleCsvExportAsync()
+    {
+        // todo this can be merged with above method.
+        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
+        {
+            // todo warn user message.
+            return;
+        }
+        
+        foreach (var file in SelectedFiles)
+        {
+            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder, ".csv");
             
             file.IsError = !process;
             file.IsComplete = true;
@@ -100,7 +120,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     private sealed class DesignTimeContactConverterService : IConvertContactService
     {
-        public bool ConvertAndSaveContact(string file, string outputFolder) => true;
+        public bool ConvertAndSaveContact(string file, string outputFolder, string extension = ".vcf") => true;
     }
 
     #endregion
