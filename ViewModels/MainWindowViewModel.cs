@@ -30,7 +30,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
 
-    private const string ErrorNoFilesMessage = "Please select files and an output folder for your contacts.";
+    private const string NoFilesSelectedMessage = "Please select files and an output folder for your contacts.";
     
     public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
@@ -57,11 +57,10 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         
         await
             MessageBoxManager
-                .GetMessageBoxStandard("Error", ErrorNoFilesMessage)
+                .GetMessageBoxStandard("No Files Selected", NoFilesSelectedMessage)
                 .ShowAsync();
         
         return false;
-
     }
 
     private void ExportFiles(string extension = ".vcf")
