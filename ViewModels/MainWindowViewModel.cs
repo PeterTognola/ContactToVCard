@@ -23,8 +23,8 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
-    public string ConvertButtonText { get; } = "Convert Contacts To VCF";
-    public string ConvertCsvButtonText { get; } = "Convert Contacts To CSV";
+    public string ConvertButtonText { get; } = "Convert To VCF Files";
+    public string ConvertCsvButtonText { get; } = "Convert To CSV Files";
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
     
@@ -47,18 +47,22 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         SetSelectedOutputFolder(folderPath);
     }
 
-    [RelayCommand]
-    private async Task HandleProcessAsync()
+    private async Task<bool> IsExportValid()
     {
         if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
         {
             // todo warn user message.
-            return;
+            return false;
         }
 
+        return true;
+    }
+
+    private void ExportFiles(string extension = ".vcf")
+    {
         foreach (var file in SelectedFiles)
         {
-            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder);
+            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder, extension);
             
             file.IsError = !process;
             file.IsComplete = true;
@@ -66,22 +70,15 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     }
 
     [RelayCommand]
+    private async Task HandleProcessAsync()
+    {
+        if (await IsExportValid()) ExportFiles();
+    }
+
+    [RelayCommand]
     private async Task HandleCsvExportAsync()
     {
-        // todo this can be merged with above method.
-        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
-        {
-            // todo warn user message.
-            return;
-        }
-        
-        foreach (var file in SelectedFiles)
-        {
-            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder, ".csv");
-            
-            file.IsError = !process;
-            file.IsComplete = true;
-        }
+        if (await IsExportValid()) ExportFiles(".csv");
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
