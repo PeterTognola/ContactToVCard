@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContactToVCard.Models;
 using ContactToVCard.Services;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 
 namespace ContactToVCard.ViewModels;
 
@@ -23,9 +25,12 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     public string PickFilesText { get; } = "Select Contact Files";
     public string PickOutputFolderText { get; } = "Select Where To Save";
-    public string ConvertButtonText { get; } = "Convert Contacts";
+    public string ConvertButtonText { get; } = "Convert To VCF Files";
+    public string ConvertCsvButtonText { get; } = "Convert To CSV Files";
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
+
+    private const string NoFilesSelectedMessage = "Please select files and an output folder for your contacts.";
     
     public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
@@ -46,22 +51,39 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
         SetSelectedOutputFolder(folderPath);
     }
 
-    [RelayCommand]
-    private async Task HandleProcessAsync()
+    private async Task<bool> IsExportValid()
     {
-        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
-        {
-            // todo warn user message.
-            return;
-        }
+        if (SelectedFiles.Count != 0 && !string.IsNullOrWhiteSpace(SelectedOutputFolder)) return true;
+        
+        await
+            MessageBoxManager
+                .GetMessageBoxStandard("No Files Selected", NoFilesSelectedMessage)
+                .ShowAsync();
+        
+        return false;
+    }
 
+    private void ExportFiles(string extension = ".vcf")
+    {
         foreach (var file in SelectedFiles)
         {
-            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder);
+            var process = convertContactService.ConvertAndSaveContact(file.FilePath, SelectedOutputFolder, extension);
             
             file.IsError = !process;
             file.IsComplete = true;
         }
+    }
+
+    [RelayCommand]
+    private async Task HandleProcessAsync()
+    {
+        if (await IsExportValid()) ExportFiles();
+    }
+
+    [RelayCommand]
+    private async Task HandleCsvExportAsync()
+    {
+        if (await IsExportValid()) ExportFiles(".csv");
     }
 
     private void SetSelectedFiles(IEnumerable<string> filePaths)
@@ -100,7 +122,7 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     
     private sealed class DesignTimeContactConverterService : IConvertContactService
     {
-        public bool ConvertAndSaveContact(string file, string outputFolder) => true;
+        public bool ConvertAndSaveContact(string file, string outputFolder, string extension = ".vcf") => true;
     }
 
     #endregion

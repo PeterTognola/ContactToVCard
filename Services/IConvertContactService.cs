@@ -2,7 +2,7 @@ namespace ContactToVCard.Services;
 
 public interface IConvertContactService
 {
-    public bool ConvertAndSaveContact(string file, string outputFolder);
+    public bool ConvertAndSaveContact(string file, string outputFolder, string extension = ".vcf");
 }
 
 public class ContactNumber
