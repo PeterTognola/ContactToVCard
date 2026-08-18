@@ -18,24 +18,25 @@ public class ConvertContactService : IConvertContactService
     private const string AddressNodeName = "PhysicalAddressCollection";
     private const string EmailNodeName = "EmailAddressCollection";
     private const string UrlNodeName = "UrlCollection";
-    
+
     /// <summary>
     /// Read and convert the CONTACT to VCard format, then save.
-    ///
+    /// 
     /// This method ignores namespaces and uses the "LocalName" property to match elements.
-    ///
+    /// 
     /// Note that the output name will match the input file name.
     /// </summary>
     /// <param name="file">The input .CONTACT XML file.</param>
     /// <param name="outputFolder">The folder location to save the VCard file.</param>
+    /// <param name="extension">The extension to use for the output file. Defaults to ".vcf".</param>
     /// <returns>True if document is valid and false on unrecoverable failure.</returns>
-    public bool ConvertAndSaveContact(string file, string outputFolder)
+    public bool ConvertAndSaveContact(string file, string outputFolder, string extension = ".vcf")
     {
         // Load the CONTACT.
         var doc = XDocument.Load(file);
         
         // Get the output path.
-        var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".vcf");
+        var vcfPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + extension);
         
         // Write the VCard.
         return WriteBlueprint(vcfPath, writer =>

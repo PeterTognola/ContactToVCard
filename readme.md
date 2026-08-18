@@ -76,7 +76,7 @@ The app is functional and provides basic functionality. The support of data type
 |----------------------------|-------------|---------------------|
 | Complete Entity Coverage   | In Progress | July 2026           |
 | Status Report/Health Check | Not Started | July 2026           |
-| CSV Export                 | Not Started | August 2026         |
+| CSV Export                 | In Progress | August 2026         |
 | Signed/Trusted EXE         | Not Started | August 2026         |
 | Custom Fields/Attributes   | Not Started | September 2026      |
 | Mac Releases (?)           | Not Started | September 2026      |
