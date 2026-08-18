@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContactToVCard.Models;
 using ContactToVCard.Services;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 
 namespace ContactToVCard.ViewModels;
 
@@ -27,6 +29,8 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
     public string ConvertCsvButtonText { get; } = "Convert To CSV Files";
     public string IntroductionText { get; } = "Use this app to convert your .CONTACT files to .VCF files. Start by selecting the files, the output folder, and then press \"Convert Contacts\".";
     public string TitleText { get; set; } = "Contact To VCard";
+
+    private const string ErrorNoFilesMessage = "Please select files and an output folder for your contacts.";
     
     public ObservableCollection<ContactFile> SelectedFiles { get; } = [];
     
@@ -49,13 +53,15 @@ public partial class MainWindowViewModel(IFilePickerService filePickerService, I
 
     private async Task<bool> IsExportValid()
     {
-        if (SelectedFiles.Count == 0 || string.IsNullOrWhiteSpace(SelectedOutputFolder))
-        {
-            // todo warn user message.
-            return false;
-        }
+        if (SelectedFiles.Count != 0 && !string.IsNullOrWhiteSpace(SelectedOutputFolder)) return true;
+        
+        await
+            MessageBoxManager
+                .GetMessageBoxStandard("Error", ErrorNoFilesMessage)
+                .ShowAsync();
+        
+        return false;
 
-        return true;
     }
 
     private void ExportFiles(string extension = ".vcf")
